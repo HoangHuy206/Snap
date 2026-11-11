@@ -1,0 +1,68 @@
+# SnapQR Docker Compose for VPS / Self-Hosted Production Deployment
+# Run: docker compose up -d --build
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: snapqr
+      POSTGRES_USER: snapqr
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_this_strong_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U snapqr -d snapqr"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_NAME: SnapQR
+      ENVIRONMENT: production
+      PORT: 8000
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      DATABASE_URL: postgresql+psycopg://snapqr:${POSTGRES_PASSWORD:-change_this_strong_password}@postgres:5432/snapqr
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-auto}
+      LOCAL_STORAGE_DIR: /app/data/uploads
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-}
+      S3_REGION: ${S3_REGION:-auto}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
+      S3_PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL:-}
+      USE_PRESIGNED_UPLOAD: ${USE_PRESIGNED_UPLOAD:-false}
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-200}
+      DEFAULT_EXPIRY_DAYS: ${DEFAULT_EXPIRY_DAYS:-7}
+      MAX_EXPIRY_DAYS: ${MAX_EXPIRY_DAYS:-30}
+      YTDLP_PROXY: ${YTDLP_PROXY:-}
+    volumes:
+      - uploads_data:/app/data/uploads
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
+  uploads_data:

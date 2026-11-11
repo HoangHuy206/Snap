@@ -1,0 +1,22 @@
+# Dependencies & Build
+node_modules/
+frontend/.next/
+frontend/out/
+backend/.venv/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+
+# Local Data & Secrets
+.env
+.env.local
+backend/.env
+frontend/.env.local
+backend/data/
+*.db
+*.sqlite3
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db

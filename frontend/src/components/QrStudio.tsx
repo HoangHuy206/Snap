@@ -1,0 +1,451 @@
+"use client";
+
+import { useId, useState } from "react";
+import Link from "next/link";
+import {
+  Check,
+  Copy,
+  ExternalLink,
+  FileUp,
+  Film,
+  KeyRound,
+  Plus,
+  RefreshCw,
+  Settings2,
+  AlertCircle,
+} from "lucide-react";
+import {
+  formatBytes,
+  getShareUrl,
+  updateMediaMetadata,
+  uploadMediaWithProgress,
+  type MediaItem,
+  type QrDesignConfig,
+} from "@/lib/api";
+import { saveQrHistoryEntry, updateHistoryItemInfo } from "@/lib/history";
+import { DEFAULT_QR_CONFIG, resolveQrConfig } from "@/lib/qr-presets";
+import { QrCustomizer } from "./QrCustomizer";
+
+interface QrStudioProps {
+  initialItem?: MediaItem | null;
+  onItemSaved?: () => void;
+}
+
+function getInitialQrConfig(item?: MediaItem | null): QrDesignConfig {
+  if (!item) return DEFAULT_QR_CONFIG;
+  if (item.qr_config) {
+    return resolveQrConfig(item.qr_config);
+  }
+  return {
+    ...DEFAULT_QR_CONFIG,
+    logoMode:
+      item.media_kind === "video" ? "video" : item.media_kind === "audio" ? "music" : "file",
+  };
+}
+
+export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [expiryDays, setExpiryDays] = useState<number>(7);
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const [activeItem, setActiveItem] = useState<MediaItem | null>(initialItem);
+  const [qrConfig, setQrConfig] = useState<QrDesignConfig>(() => getInitialQrConfig(initialItem));
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<"share" | "manage" | null>(null);
+
+  const fileInputId = useId();
+  const titleInputId = useId();
+  const descInputId = useId();
+  const expirySelectId = useId();
+
+  const handleFilePick = (file: File | undefined) => {
+    if (!file) return;
+    setSelectedFile(file);
+    setErrorMsg("");
+    if (!title.trim()) {
+      const base = file.name.replace(/\.[^/.]+$/, "");
+      setTitle(base.slice(0, 120));
+    }
+    if (file.type.startsWith("video/")) {
+      setQrConfig((prev) => ({
+        ...prev,
+        logoMode: "video",
+        frameIcon: "play",
+        frameLabel: "Quét để xem video",
+      }));
+    } else if (file.type.startsWith("audio/")) {
+      setQrConfig((prev) => ({
+        ...prev,
+        logoMode: "music",
+        frameIcon: "play",
+        frameLabel: "Quét để nghe âm thanh",
+      }));
+    } else {
+      setQrConfig((prev) => ({
+        ...prev,
+        logoMode: "file",
+        frameIcon: "download",
+        frameLabel: "Quét để xem & tải tệp",
+      }));
+    }
+  };
+
+  const handleUploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedFile) {
+      setErrorMsg("Vui lòng chọn video hoặc tệp tin để tạo mã QR.");
+      return;
+    }
+
+    setUploading(true);
+    setUploadProgress(0);
+    setErrorMsg("");
+
+    try {
+      const created = await uploadMediaWithProgress(
+        {
+          file: selectedFile,
+          title: title.trim() || undefined,
+          description: description.trim() || undefined,
+          expiryDays,
+          qrConfig,
+        },
+        (pct) => setUploadProgress(pct),
+      );
+      setActiveItem(created);
+      saveQrHistoryEntry(created, qrConfig);
+      onItemSaved?.();
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải tệp lên.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSaveConfigToServer = async () => {
+    if (!activeItem?.edit_token) return;
+    setSavingConfig(true);
+    try {
+      const updated = await updateMediaMetadata(activeItem.code, activeItem.edit_token, {
+        qr_config: qrConfig,
+      });
+      setActiveItem({ ...updated, edit_token: activeItem.edit_token });
+      updateHistoryItemInfo(activeItem.code, { qrConfig });
+      onItemSaved?.();
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Không thể lưu giao diện QR.");
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  const handleCopy = async (text: string, key: "share" | "manage") => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
+    } catch {
+      // ignore clipboard errors
+    }
+  };
+
+  const resetCreator = () => {
+    setActiveItem(null);
+    setSelectedFile(null);
+    setTitle("");
+    setDescription("");
+    setUploadProgress(0);
+    setErrorMsg("");
+  };
+
+  const shareUrl = activeItem ? getShareUrl(activeItem.code) : "https://snapqr.app/v/demo";
+  const manageUrl =
+    activeItem && typeof window !== "undefined" && activeItem.edit_token
+      ? `${window.location.origin}/manage/${activeItem.code}?token=${encodeURIComponent(activeItem.edit_token)}`
+      : "";
+
+  return (
+    <div className="space-y-8">
+      {/* Step 1: Upload Form OR Active QR Summary */}
+      {!activeItem ? (
+        <form
+          onSubmit={handleUploadSubmit}
+          className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-4 sm:p-7 shadow-sm space-y-5"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight">1. Tải Video hoặc Tệp tin lên</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Hỗ trợ Video (MP4, MOV, WebM), Ảnh, PDF, Tài liệu, Audio, ZIP... tạo ngay trang xem riêng &amp; QR động.
+              </p>
+            </div>
+          </div>
+
+          {/* Dropzone */}
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+              handleFilePick(e.dataTransfer.files?.[0]);
+            }}
+            className={`relative rounded-2xl border-2 border-dashed p-6 sm:p-8 text-center transition-colors ${
+              isDragging
+                ? "border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/30"
+                : "border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40"
+            }`}
+          >
+            <input
+              id={fileInputId}
+              type="file"
+              onChange={(e) => handleFilePick(e.target.files?.[0])}
+              className="visually-hidden"
+            />
+            <label
+              htmlFor={fileInputId}
+              className="flex flex-col items-center justify-center gap-3 cursor-pointer"
+            >
+              <span className="inline-flex size-14 items-center justify-center rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                {selectedFile?.type.startsWith("video/") ? (
+                  <Film className="size-7" aria-hidden="true" />
+                ) : (
+                  <FileUp className="size-7" aria-hidden="true" />
+                )}
+              </span>
+
+              {selectedFile ? (
+                <div className="space-y-1 max-w-full">
+                  <p className="font-semibold text-base break-all">{selectedFile.name}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    {formatBytes(selectedFile.size)} • {selectedFile.type || "Tệp tin"} — Nhấn để đổi tệp khác
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <p className="font-semibold text-base">
+                    Kéo thả Video / File vào đây, hoặc <span className="text-indigo-600 dark:text-indigo-400 underline">chọn từ máy</span>
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Giới hạn mặc định tối đa 200 MB / tệp
+                  </p>
+                </div>
+              )}
+            </label>
+          </div>
+
+          {/* Metadata fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+            <div className="sm:col-span-6 space-y-1.5">
+              <label htmlFor={titleInputId} className="block text-sm font-semibold">
+                Tiêu đề hiển thị (khi quét QR)
+              </label>
+              <input
+                id={titleInputId}
+                type="text"
+                maxLength={200}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Ví dụ: Video hướng dẫn sử dụng sản phẩm"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm"
+              />
+            </div>
+
+            <div className="sm:col-span-3 space-y-1.5">
+              <label htmlFor={expirySelectId} className="block text-sm font-semibold">
+                Thời hạn lưu trữ
+              </label>
+              <select
+                id={expirySelectId}
+                value={expiryDays}
+                onChange={(e) => setExpiryDays(Number(e.target.value))}
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm"
+              >
+                <option value={1}>1 ngày</option>
+                <option value={7}>7 ngày (Khuyên dùng)</option>
+                <option value={14}>14 ngày</option>
+                <option value={30}>30 ngày</option>
+              </select>
+            </div>
+
+            <div className="sm:col-span-3 flex items-end">
+              <button
+                type="submit"
+                disabled={uploading}
+                className="w-full inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors cursor-pointer"
+              >
+                {uploading ? (
+                  <>
+                    <RefreshCw className="size-4 animate-spin" aria-hidden="true" />
+                    {uploadProgress}%
+                  </>
+                ) : (
+                  <>
+                    <Plus className="size-4" aria-hidden="true" />
+                    Tạo QR Ngay
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="sm:col-span-12 space-y-1.5">
+              <label htmlFor={descInputId} className="block text-sm font-semibold">
+                Ghi chú ngắn (tùy chọn)
+              </label>
+              <input
+                id={descInputId}
+                type="text"
+                maxLength={500}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Mô tả nội dung cho người quét QR..."
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm"
+              />
+            </div>
+          </div>
+
+          {uploading && (
+            <div role="status" aria-live="polite" className="space-y-1.5">
+              <div className="flex justify-between text-xs font-medium text-slate-600 dark:text-slate-400">
+                <span>Đang tải tệp lên hệ thống lưu trữ...</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <progress className="snap-progress" max={100} value={uploadProgress} aria-label="Tiến độ tải lên" />
+            </div>
+          )}
+
+          {errorMsg && (
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-xl border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/50 px-4 py-3 text-sm text-rose-800 dark:text-rose-200"
+            >
+              <AlertCircle className="size-4 shrink-0 mt-0.5" aria-hidden="true" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+        </form>
+      ) : (
+        <div className="rounded-2xl border border-emerald-300 dark:border-emerald-800/80 bg-emerald-50/70 dark:bg-emerald-950/25 p-5 sm:p-6 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-bold text-white">
+                  Đã tạo QR
+                </span>
+                <h2 className="text-lg font-bold truncate">{activeItem.title}</h2>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
+                {activeItem.original_filename} • {formatBytes(activeItem.file_size)}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={resetCreator}
+              className="inline-flex min-h-[42px] items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              Upload Video / File khác
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Share URL box */}
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 space-y-2 min-w-0">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                Link trang xem / tải khi quét QR
+              </span>
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 min-w-0">
+                <input
+                  type="text"
+                  readOnly
+                  value={shareUrl}
+                  aria-label="Đường dẫn chia sẻ"
+                  className="w-full sm:w-auto sm:flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 font-mono text-xs !min-h-[42px]"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleCopy(shareUrl, "share")}
+                  className="flex-1 sm:flex-none inline-flex min-h-[42px] items-center justify-center gap-1 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 text-xs font-semibold cursor-pointer shrink-0"
+                >
+                  {copiedKey === "share" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                  {copiedKey === "share" ? "Đã chép" : "Copy"}
+                </button>
+                <Link
+                  href={`/v/${activeItem.code}`}
+                  target="_blank"
+                  aria-label="Mở trang xem"
+                  className="inline-flex min-h-[42px] min-w-[42px] items-center justify-center rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0"
+                >
+                  <ExternalLink className="size-4" aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Dynamic QR Manage Link */}
+            {activeItem.edit_token && (
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 space-y-2 min-w-0">
+                <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 flex items-center gap-1">
+                  <KeyRound className="size-3.5" aria-hidden="true" />
+                  Link quản lý Dynamic QR (đổi video không cần đổi mã QR)
+                </span>
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 min-w-0">
+                  <input
+                    type="text"
+                    readOnly
+                    value={manageUrl}
+                    aria-label="Đường dẫn quản lý Dynamic QR"
+                    className="w-full sm:w-auto sm:flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 font-mono text-xs !min-h-[42px]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(manageUrl, "manage")}
+                    className="flex-1 sm:flex-none inline-flex min-h-[42px] items-center justify-center gap-1 rounded-lg border border-slate-300 dark:border-slate-700 px-3 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer shrink-0"
+                  >
+                    {copiedKey === "manage" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                    {copiedKey === "manage" ? "Đã chép" : "Copy"}
+                  </button>
+                  <Link
+                    href={`/manage/${activeItem.code}?token=${encodeURIComponent(activeItem.edit_token)}`}
+                    className="flex-1 sm:flex-none inline-flex min-h-[42px] items-center justify-center gap-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-3 text-xs font-semibold shrink-0"
+                  >
+                    <Settings2 className="size-3.5" aria-hidden="true" />
+                    Quản lý
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: QR Studio Customizer */}
+      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-4 sm:p-7 shadow-sm space-y-5">
+        <div>
+          <h2 className="text-xl font-bold tracking-tight">2. Tùy biến QR đẹp &amp; nổi bật</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Chỉnh kiểu chấm, màu Gradient, gắn logo ở giữa và thêm khung chữ kêu gọi quét trước khi tải PNG/SVG.
+          </p>
+        </div>
+
+        <QrCustomizer
+          qrValue={shareUrl}
+          config={qrConfig}
+          onChange={setQrConfig}
+          isLiveLinked={Boolean(activeItem)}
+          onSaveConfigToServer={activeItem?.edit_token ? handleSaveConfigToServer : undefined}
+          savingConfig={savingConfig}
+        />
+      </section>
+    </div>
+  );
+}
