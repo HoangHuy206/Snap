@@ -133,7 +133,79 @@ def run_tests() -> None:
         ssrf_meta = client.get("/api/social/proxy-image?url=http://169.254.169.254/latest/meta-data/")
         assert ssrf_meta.status_code == 400
 
-        # 9. Cleanup delete
+        # 9. Feedback endpoint: validation, honeypot, and mocked Telegram HTML-safe delivery
+        bad_fb = client.post("/api/feedback", json={"category": "bug", "message": "hi"})
+        assert bad_fb.status_code == 422
+
+        spam_fb = client.post(
+            "/api/feedback",
+            json={"category": "other", "message": "Spam bot content", "website": "https://spam.example"},
+        )
+        assert spam_fb.status_code == 200
+        assert spam_fb.json()["delivered_telegram"] is False
+
+        import app.routers.feedback as fb_mod
+
+        sent_payloads = []
+
+        class _MockResp:
+            def __init__(self, status_code: int, payload: dict) -> None:
+                self.status_code = status_code
+                self._payload = payload
+
+            def json(self):
+                return self._payload
+
+        class _MockAsyncClient:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *args):
+                return False
+
+            async def get(self, url, params=None):
+                assert "getUpdates" in url
+                return _MockResp(200, {"ok": True, "result": [{"message": {"chat": {"id": 999888777}}}]})
+
+            async def post(self, url, json=None):
+                assert "sendMessage" in url
+                sent_payloads.append(json)
+                return _MockResp(200, {"ok": True, "result": {"message_id": 1}})
+
+        orig_client = fb_mod.httpx.AsyncClient
+        from app.config import get_settings as _get_settings
+
+        orig_token = _get_settings().telegram_bot_token
+        orig_chat = _get_settings().telegram_chat_id
+        _get_settings().telegram_bot_token = "12345:MOCK_TEST_TOKEN"
+        _get_settings().telegram_chat_id = ""
+        fb_mod.httpx.AsyncClient = _MockAsyncClient
+        try:
+            ok_fb = client.post(
+                "/api/feedback",
+                json={
+                    "category": "feature",
+                    "message": "Thêm khung Noel <script>alert(1)</script> nhé!",
+                    "sender_name": "Huy <admin>",
+                    "contact": "@huy_tele",
+                },
+            )
+            assert ok_fb.status_code == 200, ok_fb.text
+            assert ok_fb.json()["delivered_telegram"] is True
+            assert len(sent_payloads) == 1
+            assert sent_payloads[0]["chat_id"] == "999888777"
+            assert "&lt;script&gt;" in sent_payloads[0]["text"]
+            assert "<script>" not in sent_payloads[0]["text"]
+            assert "Huy &lt;admin&gt;" in sent_payloads[0]["text"]
+        finally:
+            fb_mod.httpx.AsyncClient = orig_client
+            _get_settings().telegram_bot_token = orig_token
+            _get_settings().telegram_chat_id = orig_chat
+
+        # 10. Cleanup delete
         del_res = client.delete(f"/api/media/{code}", headers={"X-Edit-Token": edit_token})
         assert del_res.status_code == 200
         assert client.get(f"/api/media/{code}").status_code == 404

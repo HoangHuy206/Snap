@@ -62,6 +62,9 @@ class Settings:
         self.ytdlp_cookies_file: str = os.getenv("YTDLP_COOKIES_FILE", "").strip()
         self.ffmpeg_path: str = os.getenv("FFMPEG_PATH", "").strip()
 
+        self.telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+        self.telegram_chat_id: str = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+
     @property
     def is_s3_configured(self) -> bool:
         return bool(self.s3_bucket and self.s3_access_key_id and self.s3_secret_access_key)

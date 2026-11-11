@@ -6,6 +6,7 @@ import { Header } from "@/components/Header";
 import { QrStudio } from "@/components/QrStudio";
 import { SocialDownloader } from "@/components/SocialDownloader";
 import { RecentHistory } from "@/components/RecentHistory";
+import { FeedbackSection } from "@/components/FeedbackSection";
 import type { MediaItem } from "@/lib/api";
 import {
   getServerHistorySnapshot,
@@ -137,6 +138,8 @@ export default function HomePage() {
           onSelectForQr={handleSelectHistory}
           onRemove={handleRemoveHistory}
         />
+
+        <FeedbackSection />
       </main>
 
       <footer className="border-t border-slate-200/80 dark:border-slate-800/80 pt-5 snap-safe-bottom text-center text-xs text-slate-500 dark:text-slate-400">

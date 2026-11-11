@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.database import Base, SessionLocal, engine
 from app.models import MediaItem, utc_now
-from app.routers import media, social
+from app.routers import feedback, media, social
 from app.services.social_dl import _detect_modern_ffmpeg
 from app.storage import StorageManager
 
@@ -81,6 +81,7 @@ async def add_security_headers(request: Request, call_next):
 
 app.include_router(media.router)
 app.include_router(social.router)
+app.include_router(feedback.router)
 
 
 @app.get("/api/health")
@@ -95,4 +96,5 @@ def health_check():
         "default_expiry_days": settings.default_expiry_days,
         "max_expiry_days": settings.max_expiry_days,
         "ffmpeg_ready": _detect_modern_ffmpeg(settings) is not None,
+        "feedback_telegram_configured": bool(settings.telegram_bot_token),
     }

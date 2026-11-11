@@ -29,6 +29,10 @@ services:
         sync: false
       - key: MAX_FILE_SIZE_MB
         value: "200"
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
 
 databases:
   - name: snapqr-db

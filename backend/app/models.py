@@ -42,3 +42,28 @@ class MediaItem(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
     expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+
+
+class AppSetting(Base):
+    """Stores persistent runtime key-value settings (such as auto-discovered Telegram chat_id)."""
+
+    __tablename__ = "app_settings"
+
+    key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    value: Mapped[str] = mapped_column(Text, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+
+class FeedbackMessage(Base):
+    """Stores user feedback submissions alongside Telegram notification delivery status."""
+
+    __tablename__ = "feedback_messages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    category: Mapped[str] = mapped_column(String(32), default="feature", nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    sender_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    contact: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    page_url: Mapped[Optional[str]] = mapped_column(String(320), nullable=True)
+    telegram_delivered: Mapped[bool] = mapped_column(default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)

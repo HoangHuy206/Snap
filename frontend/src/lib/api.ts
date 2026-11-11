@@ -393,3 +393,32 @@ export async function saveSocialMediaToQr(params: {
   }
   return res.json();
 }
+
+export type FeedbackCategory = "feature" | "bug" | "ui" | "other";
+
+export interface FeedbackSubmitPayload {
+  category: FeedbackCategory;
+  message: string;
+  sender_name?: string;
+  contact?: string;
+  page_url?: string;
+  website?: string;
+}
+
+export interface FeedbackSubmitResponse {
+  ok: boolean;
+  delivered_telegram: boolean;
+  message: string;
+}
+
+export async function submitFeedback(payload: FeedbackSubmitPayload): Promise<FeedbackSubmitResponse> {
+  const res = await fetch(`${API_BASE_URL}/api/feedback`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    throw new Error(await parseError(res, "Không thể gửi góp ý lúc này. Vui lòng thử lại sau."));
+  }
+  return res.json();
+}

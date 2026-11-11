@@ -44,6 +44,8 @@ services:
       DEFAULT_EXPIRY_DAYS: ${DEFAULT_EXPIRY_DAYS:-7}
       MAX_EXPIRY_DAYS: ${MAX_EXPIRY_DAYS:-30}
       YTDLP_PROXY: ${YTDLP_PROXY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
     volumes:
       - uploads_data:/app/data/uploads
     ports:
