@@ -88,6 +88,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("snapqr_theme");var m=document.querySelector('meta[name="color-scheme"]');if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t);if(m)m.setAttribute("content",t);}else{document.documentElement.removeAttribute("data-theme");if(m)m.setAttribute("content","light dark");}}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -99,6 +101,9 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${plusJakarta.variable} ${jetbrainsMono.variable} ${dancingScript.variable} ${charm.variable} ${greatVibes.variable} ${playfairDisplay.variable} ${baloo2.variable} ${pacifico.variable} ${oswald.variable}`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body
         suppressHydrationWarning
         className="min-h-[100dvh] flex flex-col antialiased selection:bg-indigo-600 selection:text-white"

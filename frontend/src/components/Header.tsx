@@ -11,17 +11,24 @@ const THEME_EVENT = "snapqr-theme-change";
 function applyThemeToDom(next: ThemePref): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
+  const meta = document.querySelector('meta[name="color-scheme"]');
   if (next === "system") {
     root.removeAttribute("data-theme");
+    if (meta) meta.setAttribute("content", "light dark");
   } else {
     root.setAttribute("data-theme", next);
+    if (meta) meta.setAttribute("content", next);
   }
 }
 
 function getThemeSnapshot(): ThemePref {
   if (typeof window === "undefined") return "system";
-  const saved = window.localStorage.getItem(THEME_KEY);
-  return saved === "light" || saved === "dark" ? saved : "system";
+  try {
+    const saved = window.localStorage.getItem(THEME_KEY);
+    return saved === "light" || saved === "dark" ? saved : "system";
+  } catch {
+    return "system";
+  }
 }
 
 function getServerThemeSnapshot(): ThemePref {
@@ -46,19 +53,48 @@ export function Header() {
     applyThemeToDom(theme);
   }, [theme]);
 
-  const cycleTheme = () => {
-    const order: ThemePref[] = ["system", "light", "dark"];
-    const next = order[(order.indexOf(theme) + 1) % order.length];
-    window.localStorage.setItem(THEME_KEY, next);
+  const selectTheme = (next: ThemePref) => {
+    try {
+      if (next === "system") {
+        window.localStorage.removeItem(THEME_KEY);
+      } else {
+        window.localStorage.setItem(THEME_KEY, next);
+      }
+    } catch {
+      // Ignore storage access errors in restricted browsing contexts.
+    }
     applyThemeToDom(next);
     window.dispatchEvent(new Event(THEME_EVENT));
   };
 
-  const themeLabel =
-    theme === "system" ? "Giao diện: Tự động" : theme === "light" ? "Giao diện: Sáng" : "Giao diện: Tối";
+  const options: Array<{
+    value: ThemePref;
+    label: string;
+    title: string;
+    icon: React.ReactNode;
+  }> = [
+    {
+      value: "light",
+      label: "Sáng",
+      title: "Chế độ Sáng",
+      icon: <Sun className="size-3.5 shrink-0" aria-hidden="true" />,
+    },
+    {
+      value: "dark",
+      label: "Tối",
+      title: "Chế độ Tối",
+      icon: <Moon className="size-3.5 shrink-0" aria-hidden="true" />,
+    },
+    {
+      value: "system",
+      label: "Tự động",
+      title: "Theo cài đặt hệ thống",
+      icon: <Monitor className="size-3.5 shrink-0" aria-hidden="true" />,
+    },
+  ];
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-[#090b10]/85 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-slate-300/80 dark:border-slate-800 bg-white/90 dark:bg-[#0b101b]/90 backdrop-blur-md">
       <div className="mx-auto max-w-6xl snap-safe-top py-2.5 sm:py-3 flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2.5 sm:gap-3 min-w-0 group">
           <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 text-white shadow-sm">
@@ -66,8 +102,10 @@ export function Header() {
           </span>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-base sm:text-lg tracking-tight truncate">SnapQR</span>
-              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/60">
+              <span className="font-bold text-base sm:text-lg tracking-tight text-slate-900 dark:text-slate-50 truncate">
+                SnapQR
+              </span>
+              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
                 <Sparkles className="size-3" aria-hidden="true" />
                 Studio
               </span>
@@ -79,19 +117,32 @@ export function Header() {
           </div>
         </Link>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={cycleTheme}
-            aria-label={themeLabel}
-            title={themeLabel}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center sm:justify-start gap-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-          >
-            {theme === "system" && <Monitor className="size-4" aria-hidden="true" />}
-            {theme === "light" && <Sun className="size-4" aria-hidden="true" />}
-            {theme === "dark" && <Moon className="size-4" aria-hidden="true" />}
-            <span className="hidden sm:inline">{themeLabel}</span>
-          </button>
+        <div
+          role="group"
+          aria-label="Chọn giao diện Sáng / Tối"
+          className="inline-flex items-center gap-0.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100/90 dark:bg-slate-900/90 p-1 shrink-0"
+        >
+          {options.map((opt) => {
+            const active = theme === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => selectTheme(opt.value)}
+                aria-pressed={active}
+                title={opt.title}
+                aria-label={opt.title}
+                className={`inline-flex min-h-[36px] sm:min-h-[38px] items-center justify-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                  active
+                    ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-300 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                }`}
+              >
+                {opt.icon}
+                <span className="hidden sm:inline">{opt.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </header>
