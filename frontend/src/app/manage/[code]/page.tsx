@@ -16,6 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import {
   deleteMediaItem,
   formatBytes,
@@ -460,6 +461,7 @@ export default function ManageQrPage() {
           <ManageQrContent />
         </Suspense>
       </main>
+      <Footer />
     </div>
   );
 }

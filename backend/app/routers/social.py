@@ -191,7 +191,7 @@ async def proxy_image(
     }
     if download:
         ext = ct.split("/")[-1].replace("jpeg", "jpg")
-        clean_name = sanitize_filename(filename or f"snapqr_image.{ext}")
+        clean_name = sanitize_filename(filename or f"tiaqr_image.{ext}")
         headers["Content-Disposition"] = f"attachment; filename=\"{clean_name}\""
 
     return Response(content=resp.content, media_type=ct, headers=headers)

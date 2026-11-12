@@ -66,8 +66,9 @@ export function FeedbackSection() {
 
   return (
     <section
+      id="feedback-section"
       aria-labelledby={headingId}
-      className="mt-8 sm:mt-10 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-4 sm:p-7 shadow-sm"
+      className="mt-8 sm:mt-10 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-4 sm:p-7 shadow-sm scroll-mt-20"
     >
       <div className="max-w-3xl space-y-5">
         <div className="flex items-start gap-3">
@@ -76,7 +77,7 @@ export function FeedbackSection() {
           </span>
           <div className="min-w-0">
             <h2 id={headingId} className="text-lg sm:text-xl font-bold tracking-tight">
-              Góp ý &amp; Đề xuất nâng cấp SnapQR
+              Góp ý &amp; Đề xuất nâng cấp TiaQR
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
               Bạn muốn thêm khung QR chủ đề mới, font chữ hay gặp lỗi ở bước nào? Gửi trực tiếp để quản trị viên nhận ngay qua Telegram.
@@ -178,7 +179,7 @@ export function FeedbackSection() {
                 autoComplete="name"
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
-                placeholder="VD: Minh Anh"
+                placeholder="VD: Nguyễn Văn A"
                 className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm"
               />
             </div>

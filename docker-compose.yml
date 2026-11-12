@@ -1,4 +1,4 @@
-# SnapQR Docker Compose for VPS / Self-Hosted Production Deployment
+# TiaQR Docker Compose for VPS / Self-Hosted Production Deployment
 # Run: docker compose up -d --build
 
 services:
@@ -26,7 +26,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      APP_NAME: SnapQR
+      APP_NAME: TiaQR
       ENVIRONMENT: production
       PORT: 8000
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}

@@ -103,7 +103,7 @@ export function Header() {
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-bold text-base sm:text-lg tracking-tight text-slate-900 dark:text-slate-50 truncate">
-                SnapQR
+                TiaQR
               </span>
               <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
                 <Sparkles className="size-3" aria-hidden="true" />

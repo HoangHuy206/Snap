@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { DownloadCloud, QrCode, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { QrStudio } from "@/components/QrStudio";
 import { SocialDownloader } from "@/components/SocialDownloader";
 import { RecentHistory } from "@/components/RecentHistory";
@@ -19,10 +20,32 @@ import {
 
 type ActiveTab = "qr" | "social";
 
+function subscribePopState(callback: () => void): () => void {
+  window.addEventListener("popstate", callback);
+  return () => window.removeEventListener("popstate", callback);
+}
+
+function getTabFromLocation(): ActiveTab | null {
+  if (typeof window === "undefined") return null;
+  const tab = new URLSearchParams(window.location.search).get("tab");
+  return tab === "social" || tab === "qr" ? tab : null;
+}
+
+function getServerTabSnapshot(): ActiveTab | null {
+  return null;
+}
+
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("qr");
+  const [tabOverride, setTabOverride] = useState<ActiveTab | null>(null);
   const [selectedQrItem, setSelectedQrItem] = useState<MediaItem | null>(null);
   const [studioResetKey, setStudioResetKey] = useState(0);
+
+  const urlTab = useSyncExternalStore(
+    subscribePopState,
+    getTabFromLocation,
+    getServerTabSnapshot,
+  );
+  const activeTab: ActiveTab = tabOverride ?? urlTab ?? "qr";
 
   const history = useSyncExternalStore(
     subscribeQrHistory,
@@ -34,7 +57,7 @@ export default function HomePage() {
     saveQrHistoryEntry(item, item.qr_config);
     setSelectedQrItem({ ...item });
     setStudioResetKey((k) => k + 1);
-    setActiveTab("qr");
+    setTabOverride("qr");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -56,7 +79,7 @@ export default function HomePage() {
       edit_token: entry.editToken,
     });
     setStudioResetKey((k) => k + 1);
-    setActiveTab("qr");
+    setTabOverride("qr");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -95,7 +118,7 @@ export default function HomePage() {
               type="button"
               role="tab"
               aria-selected={activeTab === "qr"}
-              onClick={() => setActiveTab("qr")}
+              onClick={() => setTabOverride("qr")}
               className={`inline-flex min-h-[46px] items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeTab === "qr"
                   ? "bg-indigo-600 text-white shadow-sm"
@@ -110,7 +133,7 @@ export default function HomePage() {
               type="button"
               role="tab"
               aria-selected={activeTab === "social"}
-              onClick={() => setActiveTab("social")}
+              onClick={() => setTabOverride("social")}
               className={`inline-flex min-h-[46px] items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeTab === "social"
                   ? "bg-indigo-600 text-white shadow-sm"
@@ -142,9 +165,7 @@ export default function HomePage() {
         <FeedbackSection />
       </main>
 
-      <footer className="border-t border-slate-200/80 dark:border-slate-800/80 pt-5 snap-safe-bottom text-center text-xs text-slate-500 dark:text-slate-400">
-        SnapQR — Hỗ trợ Cloudflare R2 / S3, PostgreSQL, Dynamic QR &amp; Media Extractor
-      </footer>
+      <Footer onSelectTab={(tab) => setTabOverride(tab)} />
     </div>
   );
 }

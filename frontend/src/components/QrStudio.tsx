@@ -164,7 +164,7 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
     setErrorMsg("");
   };
 
-  const shareUrl = activeItem ? getShareUrl(activeItem.code) : "https://snapqr.app/v/demo";
+  const shareUrl = activeItem ? getShareUrl(activeItem.code) : "https://tiaqr.app/v/demo";
   const manageUrl =
     activeItem && typeof window !== "undefined" && activeItem.edit_token
       ? `${window.location.origin}/manage/${activeItem.code}?token=${encodeURIComponent(activeItem.edit_token)}`

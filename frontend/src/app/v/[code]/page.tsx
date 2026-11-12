@@ -19,6 +19,7 @@ import {
   Volume2,
 } from "lucide-react";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import {
   fetchMediaMetadata,
   formatBytes,
@@ -277,6 +278,7 @@ export default function ViewMediaPage() {
           </article>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

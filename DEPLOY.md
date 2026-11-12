@@ -1,4 +1,4 @@
-# Hướng dẫn Deploy SnapQR lên Internet
+# Hướng dẫn Deploy TiaQR lên Internet
 
 Dự án được thiết kế sẵn để chạy linh hoạt từ máy local đến môi trường production trên internet.
 

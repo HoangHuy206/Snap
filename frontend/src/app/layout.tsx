@@ -76,7 +76,7 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
-  title: "SnapQR — Tạo QR Video & File Tùy Biến • Tải Video MXH Không Logo",
+  title: "TiaQR — Tạo QR Video & File Tùy Biến • Tải Video MXH Không Logo",
   description:
     "Biến video và mọi tệp tin thành mã QR tùy biến nổi bật, hỗ trợ Dynamic QR và tải video/ảnh TikTok, YouTube, Instagram, Facebook không dính logo.",
 };

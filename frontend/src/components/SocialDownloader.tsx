@@ -1,9 +1,11 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
+  ClipboardCheck,
+  ClipboardPaste,
   Download,
   Image as ImageIcon,
   Link2,
@@ -44,8 +46,67 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
   const [errorMsg, setErrorMsg] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
   const [result, setResult] = useState<SocialInspectResult | null>(null);
+  const [pasteFeedback, setPasteFeedback] = useState<{
+    state: "idle" | "pasted" | "error";
+    message: string;
+  }>({ state: "idle", message: "" });
 
   const urlInputId = useId();
+  const pasteStatusId = useId();
+  const urlInputRef = useRef<HTMLInputElement | null>(null);
+  const pasteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastPasteStatusRef = useRef("");
+
+  useEffect(() => {
+    return () => {
+      if (pasteTimerRef.current) clearTimeout(pasteTimerRef.current);
+    };
+  }, []);
+
+  const showPasteStatus = (state: "pasted" | "error", rawMessage: string) => {
+    if (pasteTimerRef.current) clearTimeout(pasteTimerRef.current);
+    const message =
+      rawMessage === lastPasteStatusRef.current ? `${rawMessage}\u00A0` : rawMessage;
+    lastPasteStatusRef.current = message;
+    setPasteFeedback({ state, message });
+    pasteTimerRef.current = setTimeout(() => {
+      setPasteFeedback({ state: "idle", message: "" });
+    }, 3000);
+  };
+
+  const handlePasteFromClipboard = async () => {
+    if (!navigator.clipboard?.readText) {
+      urlInputRef.current?.focus();
+      showPasteStatus(
+        "error",
+        "Trình duyệt không hỗ trợ đọc bộ nhớ tạm ở kết nối này — nhấn giữ ô nhập hoặc bấm Ctrl+V để dán.",
+      );
+      return;
+    }
+
+    try {
+      const clipText = (await navigator.clipboard.readText()).trim();
+      if (!clipText) {
+        urlInputRef.current?.focus();
+        showPasteStatus(
+          "error",
+          "Bộ nhớ tạm đang trống — hãy sao chép liên kết video trước rồi bấm Dán.",
+        );
+        return;
+      }
+
+      setUrlInput(clipText);
+      if (errorMsg) setErrorMsg("");
+      urlInputRef.current?.focus();
+      showPasteStatus("pasted", "Đã dán liên kết từ bộ nhớ tạm!");
+    } catch {
+      urlInputRef.current?.focus();
+      showPasteStatus(
+        "error",
+        "Bạn chưa cấp quyền đọc bộ nhớ tạm — hãy cho phép hoặc bấm Ctrl+V vào ô nhập.",
+      );
+    }
+  };
 
   const handleInspect = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,18 +203,43 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
                 aria-hidden="true"
               />
               <input
+                ref={urlInputRef}
                 id={urlInputId}
+                name="url"
                 type="url"
                 required
                 value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
+                onChange={(e) => {
+                  setUrlInput(e.target.value);
+                  if (pasteFeedback.state !== "idle") {
+                    setPasteFeedback({ state: "idle", message: "" });
+                  }
+                }}
                 placeholder="https://www.tiktok.com/@user/video/... hoặc https://youtu.be/..."
                 autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
                 enterKeyHint="go"
-                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm"
+                aria-describedby={pasteStatusId}
+                className="w-full min-h-[52px] sm:min-h-[48px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-28 py-2.5 text-sm"
               />
+              <button
+                type="button"
+                onClick={handlePasteFromClipboard}
+                title="Dán liên kết từ bộ nhớ tạm"
+                className={`absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex min-h-[42px] sm:min-h-[36px] min-w-[44px] items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                  pasteFeedback.state === "pasted"
+                    ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300"
+                    : "border-indigo-200/90 dark:border-indigo-800/80 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/70 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300"
+                }`}
+              >
+                {pasteFeedback.state === "pasted" ? (
+                  <ClipboardCheck className="size-4 shrink-0" aria-hidden="true" />
+                ) : (
+                  <ClipboardPaste className="size-4 shrink-0" aria-hidden="true" />
+                )}
+                <span>{pasteFeedback.state === "pasted" ? "Đã dán" : "Dán"}</span>
+              </button>
             </div>
 
             <button
@@ -165,6 +251,21 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
               {inspecting ? "Đang phân tích..." : "Phân tích link"}
             </button>
           </div>
+          <p
+            id={pasteStatusId}
+            role="status"
+            className={
+              pasteFeedback.message
+                ? `text-xs font-medium ${
+                    pasteFeedback.state === "pasted"
+                      ? "text-emerald-700 dark:text-emerald-300"
+                      : "text-amber-700 dark:text-amber-300"
+                  }`
+                : "sr-only"
+            }
+          >
+            {pasteFeedback.message}
+          </p>
         </div>
 
         {inspecting && (
@@ -334,7 +435,7 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
                       <span className="text-xs font-medium truncate">#{item.index}</span>
                       {item.kind === "image" && (
                         <a
-                          href={getProxyImageUrl(item.url, true, `snapqr_${item.index}.${item.ext}`)}
+                          href={getProxyImageUrl(item.url, true, `tiaqr_${item.index}.${item.ext}`)}
                           className="inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 text-xs font-semibold"
                         >
                           <Download className="size-3" aria-hidden="true" />

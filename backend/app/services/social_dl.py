@@ -361,7 +361,7 @@ def download_social_media_to_temp(
 
     downloaded_file = max(files, key=lambda p: p.stat().st_size)
     ext = downloaded_file.suffix.lstrip(".").lower() or "mp4"
-    raw_title = (info.get("title") if isinstance(info, dict) else None) or "snapqr_media"
+    raw_title = (info.get("title") if isinstance(info, dict) else None) or "tiaqr_media"
     clean_name = sanitize_filename(f"{raw_title[:80]}.{ext}")
 
     content_type_map = {
