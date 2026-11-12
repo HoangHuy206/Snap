@@ -1,0 +1,28 @@
+# VidQR Studio
+
+> VidQR Studio là nền tảng web miễn phí giúp tạo mã QR Động (Dynamic QR) cho Video & Tệp tin với khung thiết kế tùy biến (PNG HD & Vector SVG), kết hợp công cụ tải Video & Ảnh mạng xã hội không dính logo watermark.
+
+- URL chính thức: https://snap-nine-dusky.vercel.app
+- Ngôn ngữ: Tiếng Việt (vi-VN)
+- Chi phí: Miễn phí 100%, không cần đăng ký tài khoản
+
+## Tính năng cốt lõi
+
+### 1. Studio Tạo QR Động cho Video & Tệp tin (Dynamic QR)
+- **Tệp tin hỗ trợ**: Video (MP4, MOV, WebM), Hình ảnh HD (PNG, JPG, WebP), PDF, Tài liệu văn phòng, Audio (MP3, WAV), File nén (ZIP).
+- **Dung lượng mặc định**: Tối đa 200 MB mỗi tệp.
+- **Đổi nội dung giữ nguyên mã QR (Dynamic QR)**: Người tạo giữ link quản lý bí mật (`/manage/<token>`) để thay thế video/tệp mới, đổi tiêu đề hoặc ghi chú bất cứ lúc nào mà mã QR đã in ra vẫn hoạt động bình thường.
+- **Tùy biến giao diện QR chuyên sâu**: Nhiều kiểu chấm, mắt QR, phối màu đơn sắc hoặc Gradient, gắn logo/ảnh giữa tâm QR, khung viền theo chủ đề (Tết, Giáng Sinh, Vintage, Anime, Kawaii, Hoa lá, Nhà giáo...) kèm phông chữ tiếng Việt và nhãn kêu gọi quét.
+- **Định dạng xuất**: Tải xuống PNG độ phân giải cao (in ấn sắc nét) và Vector SVG chuẩn nét vô cực.
+
+### 2. Công cụ Tải Video & Ảnh Mạng Xã Hội Không Logo
+- **Nền tảng hỗ trợ**: TikTok, Douyin, YouTube & YouTube Shorts, Instagram Reels, Facebook, X (Twitter).
+- **Tùy chọn nhanh**: Nút Dán (Paste) 1 chạm từ clipboard, phân tích luồng video/âm thanh/ảnh gốc sạch watermark của nền tảng, tải thẳng về thiết bị hoặc chuyển thành mã QR chia sẻ tức thì.
+- *Lưu ý minh bạch*: Hệ thống ưu tiên trích xuất luồng phát gốc chưa đóng dấu logo từ nền tảng; logo được người sáng tạo chèn cứng vào khung hình video gốc sẽ không bị chỉnh sửa.
+
+## Câu hỏi thường gặp (FAQ)
+
+- **VidQR có miễn phí và cần đăng nhập không?** Hoàn toàn miễn phí và không yêu cầu đăng nhập.
+- **Dynamic QR trên VidQR khác gì mã QR thông thường?** Mã QR thông thường gắn cứng URL cố định; Dynamic QR của VidQR cho phép cập nhật video, ảnh hoặc tài liệu PDF bên trong mà không phải in lại mã QR cũ.
+- **Video hoặc ảnh tải từ TikTok, Reels, YouTube có bị gắn logo VidQR không?** Không. Công cụ ưu tiên luồng gốc sạch watermark nền tảng và không chèn thêm logo của VidQR.
+- **Các đường link `/v/` và `/manage/` có bị công khai lên Google không?** Không. Mọi trang xem riêng tư (`/v/*`) và trang quản lý mã bí mật (`/manage/*`) đều gắn thẻ `noindex, nofollow` để bảo vệ quyền riêng tư của người dùng.

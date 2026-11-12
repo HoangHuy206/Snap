@@ -162,12 +162,11 @@ export function Footer({ onSelectTab }: FooterProps) {
           </div>
         </div>
 
-        <div className="mt-7 pt-5 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-xs text-slate-500 dark:text-slate-400">
+        <div className="mt-7 pt-5 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-center text-center text-xs text-slate-500 dark:text-slate-400">
           <p>
             &copy; {currentYear}{" "}
             <span className="font-semibold text-slate-700 dark:text-slate-300">VidQR Studio</span>. Tất cả công cụ miễn phí cho cộng đồng.
           </p>
-          <p>Hỗ trợ Cloudflare R2 / S3, PostgreSQL, Dynamic QR &amp; Media Extractor</p>
         </div>
       </div>
     </footer>
