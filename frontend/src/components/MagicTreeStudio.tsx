@@ -261,18 +261,6 @@ export function MagicTreeStudio({
               </a>
             )}
           </div>
-
-          <p className="max-w-full truncate px-2 text-[11px] text-slate-500 dark:text-slate-400">
-            Đích:{" "}
-            <a
-              href={activeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-indigo-700 dark:text-indigo-400 underline underline-offset-2"
-            >
-              {attachedMedia ? attachedMedia.title : activeUrl}
-            </a>
-          </p>
         </div>
       </div>
 

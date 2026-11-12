@@ -678,12 +678,12 @@ export function QrCustomizer({
       {/* Right: Organized Studio Controls */}
       <div className="md:col-span-7 space-y-4 min-w-0">
         {/* Quick Presets always visible at top */}
-        <fieldset className="space-y-2.5">
-          <legend className="text-sm font-bold flex items-center gap-2">
-            <Sparkles className="size-4 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+        <fieldset className="space-y-2 min-w-0">
+          <legend className="text-xs sm:text-sm font-bold flex items-center gap-1.5">
+            <Sparkles className="size-4 text-indigo-600 dark:text-indigo-400 shrink-0" aria-hidden="true" />
             Bộ mẫu thiết kế đẹp có sẵn (1-click)
           </legend>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0 snap-x">
             {QR_PRESETS.map((preset) => {
               const active = config.presetId === preset.id;
               return (
@@ -696,14 +696,14 @@ export function QrCustomizer({
                       customLogoDataUrl: config.customLogoDataUrl,
                     })
                   }
-                  className={`inline-flex min-h-[42px] items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                  className={`inline-flex shrink-0 snap-start whitespace-nowrap min-h-[36px] items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer ${
                     active
                       ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-200 ring-1 ring-indigo-600"
                       : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
                   }`}
                 >
                   <span
-                    className="size-4 rounded-full border border-black/15"
+                    className="size-3.5 rounded-full border border-black/15 shrink-0"
                     style={{ background: preset.previewGradient }}
                     aria-hidden="true"
                   />
@@ -771,13 +771,13 @@ export function QrCustomizer({
 
         {/* Section 1: Frame & Border Studio */}
         <div role="tabpanel" aria-labelledby={tabFrameId} hidden={section !== "frame"}>
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Group A: Artistic & Theme Frames */}
-            <fieldset className="space-y-2.5">
-              <legend className="text-sm font-semibold">
+            <fieldset className="space-y-2">
+              <legend className="text-xs sm:text-sm font-semibold">
                 Khung Nghệ Thuật &amp; Chủ Đề (Hoa lá, Cổ điển, Anime, 20/11...)
               </legend>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                 {THEME_FRAME_STYLES.map((item) => {
                   const active = config.frameEnabled && config.frameStyle === item.value;
                   return (
@@ -797,16 +797,16 @@ export function QrCustomizer({
                           frameStyle: item.value,
                         })
                       }
-                      className={`flex items-center gap-2.5 rounded-xl border p-2.5 text-left transition-all cursor-pointer min-h-[58px] ${
+                      className={`flex items-center gap-2.5 rounded-xl border p-2 text-left transition-all cursor-pointer min-h-[52px] ${
                         active
                           ? "border-indigo-600 bg-indigo-50/80 dark:bg-indigo-950/60 ring-1 ring-indigo-600"
                           : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
                       <FrameMiniDiagram style={item.value} />
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold truncate">{item.label}</p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold leading-snug">{item.label}</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight line-clamp-1">
                           {item.desc}
                         </p>
                       </div>
@@ -895,9 +895,9 @@ export function QrCustomizer({
             )}
 
             {/* Group B: Modern & Geometric Frames */}
-            <fieldset className="space-y-2.5">
-              <legend className="text-sm font-semibold">Khung Hiện Đại &amp; Thẻ QR</legend>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <fieldset className="space-y-2">
+              <legend className="text-xs sm:text-sm font-semibold">Khung Hiện Đại &amp; Thẻ QR</legend>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                 {FRAME_STYLES.map((item) => {
                   const active =
                     item.value === "none"
@@ -940,16 +940,16 @@ export function QrCustomizer({
                             : {}),
                         });
                       }}
-                      className={`flex items-center gap-2.5 rounded-xl border p-2.5 text-left transition-all cursor-pointer min-h-[58px] ${
+                      className={`flex items-center gap-2.5 rounded-xl border p-2 text-left transition-all cursor-pointer min-h-[52px] ${
                         active
                           ? "border-indigo-600 bg-indigo-50/80 dark:bg-indigo-950/60 ring-1 ring-indigo-600"
                           : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
                       <FrameMiniDiagram style={item.value} />
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold truncate">{item.label}</p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold leading-snug">{item.label}</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight line-clamp-1">
                           {item.desc}
                         </p>
                       </div>
@@ -961,13 +961,13 @@ export function QrCustomizer({
 
             {/* Detailed Frame & Border Controls */}
             {config.frameEnabled && config.frameStyle !== "none" && (
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-4">
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:p-3.5 space-y-3">
                 {/* Border style, thickness, radius (for geometric frames) */}
                 {!isDecorativeFrame && !isCustomFrame && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-2.5">
                     {showBorderCustomization && (
-                      <div className="space-y-1.5">
-                        <span className="block text-xs font-semibold text-slate-600 dark:text-slate-400">
+                      <div className="space-y-1">
+                        <span className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400">
                           Kiểu nét viền
                         </span>
                         <div className="grid grid-cols-3 gap-1">
@@ -978,7 +978,7 @@ export function QrCustomizer({
                               onClick={() =>
                                 onChange({ ...config, presetId: "custom", frameBorderStyle: opt.value })
                               }
-                              className={`min-h-[36px] rounded-lg border px-1.5 text-[11px] font-medium cursor-pointer ${
+                              className={`min-h-[34px] rounded-lg border px-1.5 text-[11px] font-medium whitespace-nowrap cursor-pointer ${
                                 config.frameBorderStyle === opt.value
                                   ? "border-indigo-600 bg-indigo-600 text-white"
                                   : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
@@ -992,8 +992,8 @@ export function QrCustomizer({
                     )}
 
                     {showBorderCustomization && (
-                      <div className="space-y-1.5">
-                        <span className="block text-xs font-semibold text-slate-600 dark:text-slate-400">
+                      <div className="space-y-1">
+                        <span className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400">
                           Độ dày viền
                         </span>
                         <div className="grid grid-cols-3 gap-1">
@@ -1004,7 +1004,7 @@ export function QrCustomizer({
                               onClick={() =>
                                 onChange({ ...config, presetId: "custom", frameThickness: opt.value })
                               }
-                              className={`min-h-[36px] rounded-lg border px-1.5 text-[11px] font-medium cursor-pointer ${
+                              className={`min-h-[34px] rounded-lg border px-1.5 text-[11px] font-medium whitespace-nowrap cursor-pointer ${
                                 config.frameThickness === opt.value
                                   ? "border-indigo-600 bg-indigo-600 text-white"
                                   : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
@@ -1017,8 +1017,8 @@ export function QrCustomizer({
                       </div>
                     )}
 
-                    <div className="space-y-1.5">
-                      <span className="block text-xs font-semibold text-slate-600 dark:text-slate-400">
+                    <div className="space-y-1">
+                      <span className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400">
                         Bo góc khung
                       </span>
                       <div className="grid grid-cols-3 gap-1">
@@ -1029,7 +1029,7 @@ export function QrCustomizer({
                             onClick={() =>
                               onChange({ ...config, presetId: "custom", frameRadius: opt.value })
                             }
-                            className={`min-h-[36px] rounded-lg border px-1.5 text-[11px] font-medium cursor-pointer ${
+                            className={`min-h-[34px] rounded-lg border px-1.5 text-[11px] font-medium whitespace-nowrap cursor-pointer ${
                               config.frameRadius === opt.value
                                 ? "border-indigo-600 bg-indigo-600 text-white"
                                 : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
@@ -1156,9 +1156,9 @@ export function QrCustomizer({
                   </div>
                 </div>
 
-                {/* CTA Labels & Icon */}
-                <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800/80 space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* CTA Labels & Collapsible Font / Icon */}
+                <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800/80 space-y-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div className="space-y-1">
                       <label
                         htmlFor={frameLabelId}
@@ -1173,7 +1173,7 @@ export function QrCustomizer({
                         value={config.frameLabel}
                         onChange={(e) => onChange({ ...config, frameLabel: e.target.value })}
                         placeholder="Quét để xem video"
-                        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm"
+                        className="w-full min-h-[38px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm"
                       />
                     </div>
                     <div className="space-y-1">
@@ -1190,155 +1190,169 @@ export function QrCustomizer({
                         value={config.frameSublabel}
                         onChange={(e) => onChange({ ...config, frameSublabel: e.target.value })}
                         placeholder="VD: VIDEO HD • VIDQR"
-                        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm"
+                        className="w-full min-h-[38px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2.5 pt-1">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                        <Type className="size-3.5 text-indigo-500" aria-hidden="true" />
-                        Chọn Font chữ &amp; Định dạng nhãn
+                  <details className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 px-3 py-2">
+                    <summary className="cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-semibold text-slate-700 dark:text-slate-200 select-none">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Type className="size-3.5 text-indigo-500 shrink-0" aria-hidden="true" />
+                        <span>
+                          Font chữ, Cỡ chữ &amp; Biểu tượng CTA (
+                          {FRAME_FONTS.find((f) => f.value === (config.frameFont || "sans"))?.label ?? "Hiện đại"})
+                        </span>
                       </span>
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            onChange({
-                              ...config,
-                              presetId: "custom",
-                              frameFontBold: config.frameFontBold === false,
-                            })
-                          }
-                          aria-pressed={config.frameFontBold !== false}
-                          title="Chữ đậm"
-                          className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border text-xs font-bold cursor-pointer transition-colors ${
-                            config.frameFontBold !== false
-                              ? "border-indigo-600 bg-indigo-600 text-white"
-                              : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
-                          }`}
-                        >
-                          <Bold className="size-4" aria-hidden="true" />
-                          <span className="sr-only">In đậm</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            onChange({
-                              ...config,
-                              presetId: "custom",
-                              frameFontItalic: !config.frameFontItalic,
-                            })
-                          }
-                          aria-pressed={Boolean(config.frameFontItalic)}
-                          title="Chữ nghiêng"
-                          className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border text-xs cursor-pointer transition-colors ${
-                            config.frameFontItalic
-                              ? "border-indigo-600 bg-indigo-600 text-white"
-                              : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
-                          }`}
-                        >
-                          <Italic className="size-4" aria-hidden="true" />
-                          <span className="sr-only">In nghiêng</span>
-                        </button>
-                      </div>
-                    </div>
+                      <span className="text-indigo-500 transition-transform group-open:rotate-45 text-base leading-none shrink-0">
+                        +
+                      </span>
+                    </summary>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {FRAME_FONTS.map((f) => {
-                        const selected = (config.frameFont || "sans") === f.value;
-                        return (
+                    <div className="mt-2.5 pt-2.5 border-t border-slate-200/70 dark:border-slate-800 space-y-2.5">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
+                          Chọn kiểu chữ &amp; định dạng:
+                        </span>
+                        <div className="flex items-center gap-1.5">
                           <button
-                            key={f.value}
                             type="button"
                             onClick={() =>
-                              onChange({ ...config, presetId: "custom", frameFont: f.value })
+                              onChange({
+                                ...config,
+                                presetId: "custom",
+                                frameFontBold: config.frameFontBold === false,
+                              })
                             }
-                            className={`flex flex-col items-center justify-center rounded-xl border px-2 py-2 text-center cursor-pointer transition-all min-h-[54px] ${
-                              selected
-                                ? "border-indigo-600 bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-200 ring-1 ring-indigo-600"
-                                : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
+                            aria-pressed={config.frameFontBold !== false}
+                            title="Chữ đậm"
+                            className={`inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-lg border text-xs font-bold cursor-pointer transition-colors ${
+                              config.frameFontBold !== false
+                                ? "border-indigo-600 bg-indigo-600 text-white"
+                                : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
                             }`}
                           >
-                            <span
-                              className="text-sm leading-tight truncate max-w-full"
-                              style={{
-                                fontFamily: getFontCssValue(f.value),
-                                fontWeight: config.frameFontBold === false ? 400 : 700,
-                                fontStyle: config.frameFontItalic ? "italic" : "normal",
-                              }}
-                            >
-                              {f.sample}
-                            </span>
-                            <span className="mt-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                              {f.label}
-                            </span>
+                            <Bold className="size-3.5" aria-hidden="true" />
+                            <span className="sr-only">In đậm</span>
                           </button>
-                        );
-                      })}
-                    </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onChange({
+                                ...config,
+                                presetId: "custom",
+                                frameFontItalic: !config.frameFontItalic,
+                              })
+                            }
+                            aria-pressed={Boolean(config.frameFontItalic)}
+                            title="Chữ nghiêng"
+                            className={`inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-lg border text-xs cursor-pointer transition-colors ${
+                              config.frameFontItalic
+                                ? "border-indigo-600 bg-indigo-600 text-white"
+                                : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                            }`}
+                          >
+                            <Italic className="size-3.5" aria-hidden="true" />
+                            <span className="sr-only">In nghiêng</span>
+                          </button>
+                        </div>
+                      </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 px-3 py-2">
-                      <label className="flex items-center gap-2.5 text-xs font-medium flex-1 min-w-[180px]">
-                        <span className="text-slate-600 dark:text-slate-300 whitespace-nowrap">
-                          Cỡ chữ ({Math.round((config.frameFontScale ?? 1) * 100)}%)
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                        {FRAME_FONTS.map((f) => {
+                          const selected = (config.frameFont || "sans") === f.value;
+                          return (
+                            <button
+                              key={f.value}
+                              type="button"
+                              onClick={() =>
+                                onChange({ ...config, presetId: "custom", frameFont: f.value })
+                              }
+                              className={`flex flex-col items-center justify-center rounded-xl border px-2 py-1.5 text-center cursor-pointer transition-all min-h-[48px] ${
+                                selected
+                                  ? "border-indigo-600 bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-200 ring-1 ring-indigo-600"
+                                  : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
+                              }`}
+                            >
+                              <span
+                                className="text-xs sm:text-sm leading-tight truncate max-w-full"
+                                style={{
+                                  fontFamily: getFontCssValue(f.value),
+                                  fontWeight: config.frameFontBold === false ? 400 : 700,
+                                  fontStyle: config.frameFontItalic ? "italic" : "normal",
+                                }}
+                              >
+                                {f.sample}
+                              </span>
+                              <span className="mt-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                                {f.label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2">
+                        <label className="flex items-center gap-2 text-xs font-medium flex-1 min-w-[160px]">
+                          <span className="text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                            Cỡ chữ ({Math.round((config.frameFontScale ?? 1) * 100)}%)
+                          </span>
+                          <input
+                            type="range"
+                            min={75}
+                            max={125}
+                            step={5}
+                            value={Math.round((config.frameFontScale ?? 1) * 100)}
+                            onChange={(e) =>
+                              onChange({
+                                ...config,
+                                presetId: "custom",
+                                frameFontScale: Number(e.target.value) / 100,
+                              })
+                            }
+                            className="w-full accent-indigo-600 cursor-pointer"
+                          />
+                        </label>
+                        <label className="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer text-slate-700 dark:text-slate-300">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(config.frameSublabelMatchFont)}
+                            onChange={(e) =>
+                              onChange({
+                                ...config,
+                                presetId: "custom",
+                                frameSublabelMatchFont: e.target.checked,
+                              })
+                            }
+                            className="size-4 rounded"
+                          />
+                          Font cho dòng phụ
+                        </label>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="block text-[11px] font-medium text-slate-600 dark:text-slate-400">
+                          Biểu tượng trên nhãn CTA
                         </span>
-                        <input
-                          type="range"
-                          min={75}
-                          max={125}
-                          step={5}
-                          value={Math.round((config.frameFontScale ?? 1) * 100)}
-                          onChange={(e) =>
-                            onChange({
-                              ...config,
-                              presetId: "custom",
-                              frameFontScale: Number(e.target.value) / 100,
-                            })
-                          }
-                          className="w-full accent-indigo-600 cursor-pointer"
-                        />
-                      </label>
-                      <label className="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer text-slate-700 dark:text-slate-300">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(config.frameSublabelMatchFont)}
-                          onChange={(e) =>
-                            onChange({
-                              ...config,
-                              presetId: "custom",
-                              frameSublabelMatchFont: e.target.checked,
-                            })
-                          }
-                          className="size-4 rounded"
-                        />
-                        Áp dụng font cho dòng phụ
-                      </label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {FRAME_ICONS.map((ic) => (
+                            <button
+                              key={ic.value}
+                              type="button"
+                              onClick={() => onChange({ ...config, frameIcon: ic.value })}
+                              className={`min-h-[34px] rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer ${
+                                config.frameIcon === ic.value
+                                  ? "border-indigo-600 bg-indigo-600 text-white"
+                                  : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                              }`}
+                            >
+                              {ic.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <span className="block text-xs font-medium text-slate-600 dark:text-slate-400">
-                      Biểu tượng trên nhãn CTA
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {FRAME_ICONS.map((ic) => (
-                        <button
-                          key={ic.value}
-                          type="button"
-                          onClick={() => onChange({ ...config, frameIcon: ic.value })}
-                          className={`min-h-[36px] rounded-lg border px-3 py-1 text-xs font-medium cursor-pointer ${
-                            config.frameIcon === ic.value
-                              ? "border-indigo-600 bg-indigo-600 text-white"
-                              : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
-                          }`}
-                        >
-                          {ic.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  </details>
                 </div>
               </div>
             )}
@@ -1347,16 +1361,16 @@ export function QrCustomizer({
 
         {/* Section 2: Dots & Corner Styles */}
         <div role="tabpanel" aria-labelledby={tabStyleId} hidden={section !== "style"}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <fieldset className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-2.5">
-              <legend className="text-sm font-semibold px-1">Kiểu chấm QR</legend>
-              <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <fieldset className="rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:p-3.5 space-y-2">
+              <legend className="text-xs sm:text-sm font-semibold px-1">Kiểu chấm QR</legend>
+              <div className="grid grid-cols-2 gap-1.5">
                 {DOT_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => onChange({ ...config, presetId: "custom", dotsType: opt.value })}
-                    className={`min-h-[42px] rounded-lg border px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
+                    className={`min-h-[38px] rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer transition-colors ${
                       config.dotsType === opt.value
                         ? "border-indigo-600 bg-indigo-600 text-white"
                         : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -1368,9 +1382,9 @@ export function QrCustomizer({
               </div>
             </fieldset>
 
-            <fieldset className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-2.5">
-              <legend className="text-sm font-semibold px-1">Kiểu mắt góc QR</legend>
-              <div className="grid grid-cols-1 gap-2">
+            <fieldset className="rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:p-3.5 space-y-2">
+              <legend className="text-xs sm:text-sm font-semibold px-1">Kiểu mắt góc QR</legend>
+              <div className="grid grid-cols-1 gap-1.5">
                 {CORNER_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
@@ -1383,7 +1397,7 @@ export function QrCustomizer({
                         cornersDotType: opt.value === "square" ? "square" : "dot",
                       })
                     }
-                    className={`min-h-[42px] rounded-lg border px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
+                    className={`min-h-[38px] rounded-lg border px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer transition-colors ${
                       config.cornersSquareType === opt.value
                         ? "border-indigo-600 bg-indigo-600 text-white"
                         : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -1399,8 +1413,8 @@ export function QrCustomizer({
 
         {/* Section 3: Colors & Center Logo */}
         <div role="tabpanel" aria-labelledby={tabColorId} hidden={section !== "color"}>
-          <div className="space-y-4">
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3">
+          <div className="space-y-3">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:p-3.5 space-y-2.5">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-semibold">Màu sắc &amp; Gradient mã QR</span>
                 <label className="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
