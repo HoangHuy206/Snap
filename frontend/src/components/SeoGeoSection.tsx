@@ -51,65 +51,60 @@ export function SeoGeoSection() {
     <section
       id="vidqr-guide"
       aria-labelledby="vidqr-guide-heading"
-      className="mt-10 sm:mt-14 space-y-8 sm:space-y-10"
+      className="mt-7 sm:mt-10 space-y-5 sm:space-y-6"
     >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* Section Intro */}
+      {/* Compact Section Intro + Brand Banner */}
       <ScrollReveal>
-        <div className="text-center max-w-3xl mx-auto space-y-2.5">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800/70 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-            <Sparkles className="size-3.5" aria-hidden="true" />
-            <span>Hướng dẫn &amp; Giới thiệu VidQR Studio</span>
+        <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white/90 dark:bg-slate-900/75 p-4 sm:p-5 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+          <div className="md:col-span-7 space-y-2 text-left">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800/70 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">
+              <Sparkles className="size-3" aria-hidden="true" />
+              <span>Hướng dẫn VidQR Studio</span>
+            </div>
+            <h2
+              id="vidqr-guide-heading"
+              className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white"
+            >
+              Tạo QR Video Động &amp; Tải Video MXH Trong 3 Bước
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              Xử lý trực tiếp trên trình duyệt — không cần cài app, không cần đăng nhập và giữ nguyên chất lượng gốc.
+            </p>
           </div>
-          <h2
-            id="vidqr-guide-heading"
-            className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white"
-          >
-            Tạo QR Video Động &amp; Tải Video MXH Với VidQR Studio Trong 3 Bước
-          </h2>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-            Công cụ xử lý trực tiếp trên trình duyệt — không cần cài phần mềm, không cần tạo tài khoản và giữ nguyên chất lượng gốc.
-          </p>
+          <figure className="md:col-span-5 overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-800">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/vidqr-studio-banner.png"
+              alt="VidQR Studio — Tạo QR Video & File Động, Tải Video TikTok YouTube Reels Facebook Không Logo"
+              width={1200}
+              height={630}
+              loading="lazy"
+              className="w-full h-auto block object-cover"
+            />
+          </figure>
         </div>
       </ScrollReveal>
 
-      {/* Brand Showcase Card for Google Images & Visual Clarity */}
-      <ScrollReveal>
-        <figure className="max-w-2xl mx-auto overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white/90 dark:bg-slate-900/75 shadow-sm">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/brand/vidqr-studio-banner.png"
-            alt="VidQR Studio — Tạo QR Video & File Động, Tải Video TikTok YouTube Reels Facebook Không Logo"
-            width={1200}
-            height={630}
-            loading="lazy"
-            className="w-full h-auto block object-cover"
-          />
-          <figcaption className="px-4 py-2.5 text-center text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 border-t border-slate-200/80 dark:border-slate-800/80">
-            VidQR Studio — Tạo mã QR Động cho Video &amp; File và tải media mạng xã hội không dính logo
-          </figcaption>
-        </figure>
-      </ScrollReveal>
-
       {/* 3-Step HowTo Cards */}
-      <ol className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 list-none p-0 m-0">
+      <ol className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 list-none p-0 m-0">
         {VIDQR_HOWTO_STEPS.map((item, idx) => (
           <li key={item.step} className="h-full">
-            <ScrollReveal delayMs={idx * 70} className="h-full">
-              <article className="h-full rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white/90 dark:bg-slate-900/75 p-5 shadow-sm flex flex-col gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white text-sm font-bold shadow-xs">
+            <ScrollReveal delayMs={idx * 60} className="h-full">
+              <article className="h-full rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white/90 dark:bg-slate-900/75 p-4 shadow-sm flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white text-xs font-bold shadow-xs">
                     {item.step}
                   </span>
-                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug">
                     {item.title}
                   </h3>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {item.description}
                 </p>
               </article>
@@ -187,29 +182,33 @@ export function SeoGeoSection() {
         </ScrollReveal>
       </div>
 
-      {/* Visible FAQ Grid */}
-      <div className="space-y-4">
+      {/* Compact Collapsible FAQ Accordion (Full SEO DOM preserved) */}
+      <div className="space-y-3">
         <ScrollReveal>
           <div className="flex items-center gap-2">
-            <HelpCircle className="size-5 text-indigo-600 dark:text-indigo-400 shrink-0" aria-hidden="true" />
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+            <HelpCircle className="size-4.5 text-indigo-600 dark:text-indigo-400 shrink-0" aria-hidden="true" />
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
               Câu hỏi thường gặp về VidQR
             </h3>
           </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
-          {VIDQR_FAQ_ITEMS.map((faq, idx) => (
-            <ScrollReveal key={faq.question} delayMs={(idx % 2) * 60} className="h-full">
-              <article className="h-full rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white/85 dark:bg-slate-900/70 p-4 sm:p-5 shadow-xs space-y-2">
-                <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
-                  {faq.question}
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  {faq.answer}
-                </p>
-              </article>
-            </ScrollReveal>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
+          {VIDQR_FAQ_ITEMS.map((faq) => (
+            <details
+              key={faq.question}
+              className="group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white/85 dark:bg-slate-900/70 px-3.5 py-2.5 shadow-xs"
+            >
+              <summary className="cursor-pointer list-none flex items-center justify-between gap-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white select-none">
+                <span>{faq.question}</span>
+                <span className="text-indigo-500 transition-transform group-open:rotate-45 text-base leading-none shrink-0">
+                  +
+                </span>
+              </summary>
+              <p className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                {faq.answer}
+              </p>
+            </details>
           ))}
         </div>
       </div>

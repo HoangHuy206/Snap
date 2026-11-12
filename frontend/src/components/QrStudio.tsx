@@ -180,145 +180,150 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
       : "";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-5">
       {/* Step 1: Upload Form OR Active QR Summary */}
       {!activeItem ? (
         <form
           onSubmit={handleUploadSubmit}
-          className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-4 sm:p-7 shadow-sm space-y-5"
+          className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-3.5 sm:p-5 shadow-sm space-y-3.5"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-xl font-bold tracking-tight">1. Tải Video hoặc Tệp tin lên</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Hỗ trợ Video (MP4, MOV, WebM), Ảnh, PDF, Tài liệu, Audio, ZIP... tạo ngay trang xem riêng &amp; QR động.
+              <h2 className="text-base sm:text-lg font-bold tracking-tight">
+                1. Tải Video, Ảnh hoặc Tệp tin lên
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Hỗ trợ Video, Ảnh, PDF, Tài liệu, Audio, ZIP (tối đa 200 MB) tạo ngay QR động.
               </p>
             </div>
           </div>
 
-          {/* Dropzone */}
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsDragging(false);
-              handleFilePick(e.dataTransfer.files?.[0]);
-            }}
-            className={`relative rounded-2xl border-2 border-dashed p-6 sm:p-8 text-center transition-colors ${
-              isDragging
-                ? "border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/30"
-                : "border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40"
-            }`}
-          >
-            <input
-              id={fileInputId}
-              type="file"
-              onChange={(e) => handleFilePick(e.target.files?.[0])}
-              className="visually-hidden"
-            />
-            <label
-              htmlFor={fileInputId}
-              className="flex flex-col items-center justify-center gap-3 cursor-pointer"
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-stretch">
+            {/* Compact Dropzone */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                handleFilePick(e.dataTransfer.files?.[0]);
+              }}
+              className={`md:col-span-5 relative flex items-center justify-center rounded-xl border-2 border-dashed p-3.5 sm:p-4 text-center transition-colors ${
+                isDragging
+                  ? "border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/30"
+                  : "border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40"
+              }`}
             >
-              <span className="inline-flex size-14 items-center justify-center rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
-                {selectedFile?.type.startsWith("video/") ? (
-                  <Film className="size-7" aria-hidden="true" />
-                ) : (
-                  <FileUp className="size-7" aria-hidden="true" />
-                )}
-              </span>
-
-              {selectedFile ? (
-                <div className="space-y-1 max-w-full">
-                  <p className="font-semibold text-base break-all">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    {formatBytes(selectedFile.size)} • {selectedFile.type || "Tệp tin"} — Nhấn để đổi tệp khác
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  <p className="font-semibold text-base">
-                    Kéo thả Video / File vào đây, hoặc <span className="text-indigo-600 dark:text-indigo-400 underline">chọn từ máy</span>
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Giới hạn mặc định tối đa 200 MB / tệp
-                  </p>
-                </div>
-              )}
-            </label>
-          </div>
-
-          {/* Metadata fields */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-            <div className="sm:col-span-6 space-y-1.5">
-              <label htmlFor={titleInputId} className="block text-sm font-semibold">
-                Tiêu đề hiển thị (khi quét QR)
-              </label>
               <input
-                id={titleInputId}
-                type="text"
-                maxLength={200}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ví dụ: Video hướng dẫn sử dụng sản phẩm"
-                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm"
+                id={fileInputId}
+                type="file"
+                onChange={(e) => handleFilePick(e.target.files?.[0])}
+                className="visually-hidden"
               />
-            </div>
-
-            <div className="sm:col-span-3 space-y-1.5">
-              <label htmlFor={expirySelectId} className="block text-sm font-semibold">
-                Thời hạn lưu trữ
-              </label>
-              <select
-                id={expirySelectId}
-                value={expiryDays}
-                onChange={(e) => setExpiryDays(Number(e.target.value))}
-                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm"
+              <label
+                htmlFor={fileInputId}
+                className="flex flex-row md:flex-col items-center justify-center gap-2.5 cursor-pointer w-full text-left md:text-center"
               >
-                <option value={1}>1 ngày</option>
-                <option value={7}>7 ngày (Khuyên dùng)</option>
-                <option value={14}>14 ngày</option>
-                <option value={30}>30 ngày</option>
-              </select>
-            </div>
+                <span className="inline-flex size-10 sm:size-11 shrink-0 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                  {selectedFile?.type.startsWith("video/") ? (
+                    <Film className="size-5" aria-hidden="true" />
+                  ) : (
+                    <FileUp className="size-5" aria-hidden="true" />
+                  )}
+                </span>
 
-            <div className="sm:col-span-3 flex items-end">
-              <button
-                type="submit"
-                disabled={uploading}
-                className="w-full inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors cursor-pointer"
-              >
-                {uploading ? (
-                  <>
-                    <RefreshCw className="size-4 animate-spin" aria-hidden="true" />
-                    {uploadProgress}%
-                  </>
+                {selectedFile ? (
+                  <div className="space-y-0.5 min-w-0">
+                    <p className="font-semibold text-sm truncate">{selectedFile.name}</p>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                      {formatBytes(selectedFile.size)} • Nhấn để đổi tệp
+                    </p>
+                  </div>
                 ) : (
-                  <>
-                    <Plus className="size-4" aria-hidden="true" />
-                    Tạo QR Ngay
-                  </>
+                  <div className="space-y-0.5 min-w-0">
+                    <p className="font-semibold text-xs sm:text-sm">
+                      Kéo thả Video / Ảnh / File hoặc{" "}
+                      <span className="text-indigo-600 dark:text-indigo-400 underline">chọn từ máy</span>
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      MP4, MOV, PNG, JPG, PDF, ZIP...
+                    </p>
+                  </div>
                 )}
-              </button>
+              </label>
             </div>
 
-            <div className="sm:col-span-12 space-y-1.5">
-              <label htmlFor={descInputId} className="block text-sm font-semibold">
-                Ghi chú ngắn (tùy chọn)
-              </label>
-              <input
-                id={descInputId}
-                type="text"
-                maxLength={500}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Mô tả nội dung cho người quét QR..."
-                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm"
-              />
+            {/* Compact Metadata & Submit Grid */}
+            <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-12 gap-2.5 content-between">
+              <div className="sm:col-span-8 space-y-1">
+                <label htmlFor={titleInputId} className="block text-xs font-semibold">
+                  Tiêu đề hiển thị (khi quét QR)
+                </label>
+                <input
+                  id={titleInputId}
+                  type="text"
+                  maxLength={200}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Ví dụ: Video hướng dẫn / Ảnh kỷ niệm..."
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div className="sm:col-span-4 space-y-1">
+                <label htmlFor={expirySelectId} className="block text-xs font-semibold">
+                  Thời hạn lưu
+                </label>
+                <select
+                  id={expirySelectId}
+                  value={expiryDays}
+                  onChange={(e) => setExpiryDays(Number(e.target.value))}
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-2 text-sm"
+                >
+                  <option value={1}>1 ngày</option>
+                  <option value={7}>7 ngày</option>
+                  <option value={14}>14 ngày</option>
+                  <option value={30}>30 ngày</option>
+                </select>
+              </div>
+
+              <div className="sm:col-span-8 space-y-1">
+                <label htmlFor={descInputId} className="block text-xs font-semibold">
+                  Ghi chú ngắn (tùy chọn)
+                </label>
+                <input
+                  id={descInputId}
+                  type="text"
+                  maxLength={500}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Mô tả ngắn cho người quét QR..."
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div className="sm:col-span-4 flex items-end">
+                <button
+                  type="submit"
+                  disabled={uploading}
+                  className="w-full inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 px-3.5 py-2 text-sm font-bold text-white shadow-sm transition-colors cursor-pointer"
+                >
+                  {uploading ? (
+                    <>
+                      <RefreshCw className="size-4 animate-spin" aria-hidden="true" />
+                      {uploadProgress}%
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="size-4" aria-hidden="true" />
+                      Tạo QR Ngay
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -439,7 +444,7 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
 
       {/* Step 2: QR Studio Customizer */}
       <ScrollReveal>
-        <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-4 sm:p-7 shadow-sm space-y-5">
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-3.5 sm:p-5 shadow-sm space-y-4">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold tracking-tight">2. Tùy biến QR đẹp &amp; nổi bật</h2>

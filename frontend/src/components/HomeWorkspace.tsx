@@ -97,35 +97,35 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
     <div className="min-h-[100dvh] flex flex-col">
       <Header />
 
-      <main className="flex-1 mx-auto w-full max-w-6xl px-3.5 sm:px-6 py-5 sm:py-9">
+      <main className="flex-1 mx-auto w-full max-w-6xl px-3 sm:px-6 py-3 sm:py-5">
         {/* Hero */}
-        <section className="text-center max-w-3xl mx-auto space-y-3.5 sm:space-y-4 mb-6 sm:mb-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 dark:border-indigo-800/70 bg-indigo-50/80 dark:bg-indigo-950/50 px-3.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-            <Sparkles className="size-3.5 shrink-0" aria-hidden="true" />
-            <span>VidQR Studio • Tạo QR Video / File Động &amp; Tải Media Không Logo</span>
+        <section className="text-center max-w-3xl mx-auto space-y-2 sm:space-y-2.5 mb-4 sm:mb-5">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 dark:border-indigo-800/70 bg-indigo-50/80 dark:bg-indigo-950/50 px-3 py-0.5 text-[11px] sm:text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+            <Sparkles className="size-3 shrink-0" aria-hidden="true" />
+            <span>VidQR Studio • Tạo QR Video / File &amp; Tải MXH Không Logo</span>
           </div>
-          <h1 className="text-[clamp(1.625rem,1.15rem+2.2vw,2.375rem)] font-extrabold tracking-tight leading-tight">
+          <h1 className="text-[clamp(1.375rem,1.05rem+1.6vw,2rem)] font-extrabold tracking-tight leading-tight">
             Đưa Video &amp; File thành{" "}
             <span className="bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">
               Mã QR Nổi Bật
             </span>
           </h1>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-            VidQR Studio giúp bạn upload video hoặc tệp tin để tạo mã QR thiết kế riêng có logo, đổi file bên trong không cần in lại QR — hoặc tải video/ảnh TikTok, YouTube, IG sạch watermark về máy.
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+            Upload video, ảnh, tệp tin để tạo mã QR thiết kế riêng hoặc Cây 3D tương tác — hoặc tải video TikTok, YouTube, IG không watermark.
           </p>
 
           {/* Main Tab Switcher */}
           <div
             role="tablist"
             aria-label="Chọn chức năng chính"
-            className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex gap-1.5 sm:gap-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-1.5 shadow-sm mt-2"
+            className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex gap-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-1 shadow-sm mt-1"
           >
             <button
               type="button"
               role="tab"
               aria-selected={activeTab === "qr"}
               onClick={() => setTabOverride("qr")}
-              className={`inline-flex min-h-[46px] items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`inline-flex min-h-[42px] items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-1.5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeTab === "qr"
                   ? "bg-indigo-600 text-white shadow-sm"
                   : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -140,7 +140,7 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
               role="tab"
               aria-selected={activeTab === "social"}
               onClick={() => setTabOverride("social")}
-              className={`inline-flex min-h-[46px] items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`inline-flex min-h-[42px] items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-1.5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeTab === "social"
                   ? "bg-indigo-600 text-white shadow-sm"
                   : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"

@@ -190,41 +190,40 @@ export function MagicTreeStudio({
   return (
     <section
       aria-label="Tạo QR Hoạt Ảnh 3D cho Video, Ảnh, Tệp tin và Link URL"
-      className="mx-auto w-full max-w-5xl space-y-6"
+      className={`mx-auto w-full ${
+        showControlsInViewer ? "grid grid-cols-1 lg:grid-cols-12 gap-4 items-start" : "max-w-3xl space-y-4"
+      }`}
     >
       {/* Main Interactive Stage */}
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-[#faf6ee] via-[#f6f1e6] to-[#efe8d8] dark:from-[#121622] dark:via-[#10141f] dark:to-[#0d101a] p-4 sm:p-6 shadow-sm">
+      <div
+        className={`relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-[#faf6ee] via-[#f6f1e6] to-[#efe8d8] dark:from-[#121622] dark:via-[#10141f] dark:to-[#0d101a] p-3 sm:p-4 shadow-sm ${
+          showControlsInViewer ? "lg:col-span-6 lg:sticky lg:top-16" : ""
+        }`}
+      >
         {/* Top stage info bar */}
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/60 dark:border-indigo-500/30 bg-white/80 dark:bg-slate-900/70 px-3 py-1 text-xs font-semibold text-amber-900 dark:text-indigo-200 backdrop-blur-sm">
-            <Sparkles className="size-3.5 text-amber-500 dark:text-indigo-400" aria-hidden="true" />
-            <span>QR Hoạt Ảnh 3D • Video, Ảnh, Tệp &amp; Link URL</span>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/60 dark:border-indigo-500/30 bg-white/80 dark:bg-slate-900/70 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900 dark:text-indigo-200 backdrop-blur-sm">
+            <Sparkles className="size-3 text-amber-500 dark:text-indigo-400" aria-hidden="true" />
+            <span>QR 3D • Video, Ảnh &amp; Link</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="hidden sm:inline text-xs text-slate-600 dark:text-slate-400">
-              {mode === "tree"
-                ? "Kéo ngang trên cây để xoay 3D (±25°)"
-                : "Mặt phẳng QR độ tương phản cao — sẵn sàng quét"}
-            </span>
-            <button
-              type="button"
-              onClick={() => setMode((prev) => (prev === "tree" ? "qr" : "tree"))}
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-            >
-              {mode === "tree" ? (
-                <>
-                  <QrCode className="size-3.5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
-                  <span>Xem mã QR quét</span>
-                </>
-              ) : (
-                <>
-                  <Trees className="size-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-                  <span>Biến thành Cây 3D</span>
-                </>
-              )}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setMode((prev) => (prev === "tree" ? "qr" : "tree"))}
+            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-800 dark:text-slate-100 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+          >
+            {mode === "tree" ? (
+              <>
+                <QrCode className="size-3.5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+                <span>Xem mã QR quét</span>
+              </>
+            ) : (
+              <>
+                <Trees className="size-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                <span>Biến thành Cây 3D</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* Canvas */}
@@ -238,16 +237,16 @@ export function MagicTreeStudio({
         />
 
         {/* Bottom quick interaction pill */}
-        <div className="mt-3 flex flex-col items-center gap-2 text-center">
+        <div className="mt-2.5 flex flex-col items-center gap-1.5 text-center">
           <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               type="button"
               onClick={() => setMode((prev) => (prev === "tree" ? "qr" : "tree"))}
-              className="inline-flex min-h-[38px] items-center gap-2 rounded-full border border-slate-300/70 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 px-4 py-1.5 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 shadow-xs hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-slate-300/70 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 px-3.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 shadow-xs hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               {mode === "tree"
-                ? "Chạm vào cây để biến thành Mã QR"
-                : "Chạm lại để bung thành Cây 3D"}
+                ? "Chạm cây xem Mã QR • Kéo để xoay"
+                : "Chạm lại để bung Cây 3D"}
             </button>
 
             {isVidQrMediaLink && (
@@ -255,23 +254,23 @@ export function MagicTreeStudio({
                 href={activeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors"
+                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-indigo-600 px-3.5 py-1 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors"
               >
                 <Film className="size-3.5" aria-hidden="true" />
-                <span>Mở Video / Ảnh đính kèm</span>
+                <span>Mở Video / Ảnh</span>
               </a>
             )}
           </div>
 
-          <p className="max-w-full truncate px-3 text-xs text-slate-500 dark:text-slate-400">
-            Đích đến khi quét:{" "}
+          <p className="max-w-full truncate px-2 text-[11px] text-slate-500 dark:text-slate-400">
+            Đích:{" "}
             <a
               href={activeUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-indigo-700 dark:text-indigo-400 underline underline-offset-2"
             >
-              {attachedMedia ? `${attachedMedia.title} (${activeUrl})` : activeUrl}
+              {attachedMedia ? attachedMedia.title : activeUrl}
             </a>
           </p>
         </div>
@@ -279,11 +278,11 @@ export function MagicTreeStudio({
 
       {/* Viewer mode toggle when opened via /magic?q=... */}
       {compactViewer && !showControlsInViewer && (
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2.5">
           <button
             type="button"
             onClick={handleDownloadPng}
-            className="inline-flex min-h-[42px] items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-800 dark:text-slate-100 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="inline-flex min-h-[40px] items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <Download className="size-4 text-indigo-500" aria-hidden="true" />
             <span>{mode === "tree" ? "Tải ảnh Cây 3D (PNG)" : "Tải ảnh QR Quét (PNG)"}</span>
@@ -291,17 +290,17 @@ export function MagicTreeStudio({
           <button
             type="button"
             onClick={() => setShowControlsInViewer(true)}
-            className="inline-flex min-h-[42px] items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
+            className="inline-flex min-h-[40px] items-center gap-2 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
           >
             <Flower2 className="size-4" aria-hidden="true" />
-            <span>Gắn Video / Ảnh hoặc tạo cây mới</span>
+            <span>Gắn Video / Ảnh hoặc tùy biến</span>
           </button>
         </div>
       )}
 
       {/* Customization Controls Card */}
       {showControlsInViewer && (
-        <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-5 sm:p-6 shadow-sm space-y-5">
+        <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-3.5 sm:p-4 shadow-sm space-y-4">
           {/* Source Selector: Video/Image/File OR Direct Link URL */}
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -523,7 +522,7 @@ export function MagicTreeStudio({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {SEASON_PRESETS.map((preset) => {
                 const isSelected = season === preset.id;
                 return (
@@ -535,16 +534,16 @@ export function MagicTreeStudio({
                       setSeason(preset.id);
                       setFlowerColor(preset.defaultFlower);
                     }}
-                    className={`flex flex-col items-start rounded-2xl border p-3 text-left transition-all cursor-pointer ${
+                    className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition-all cursor-pointer ${
                       isSelected
                         ? "border-indigo-500 bg-indigo-50/70 dark:bg-indigo-950/40 ring-2 ring-indigo-500/20"
                         : "border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 hover:border-slate-300 dark:hover:border-slate-700"
                     }`}
                   >
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
                       {preset.ambientEmoji} {preset.label}
                     </span>
-                    <span className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    <span className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
                       {preset.shortDesc}
                     </span>
                   </button>
@@ -554,11 +553,11 @@ export function MagicTreeStudio({
           </div>
 
           {/* Flower Palette Swatches */}
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">
-              3. Chọn màu hoa &amp; lá trên tán cây
+              3. Chọn màu hoa &amp; lá
             </span>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               {FLOWER_PALETTES.map((palette) => {
                 const isSelected = flowerColor === palette.id;
                 return (
@@ -569,14 +568,14 @@ export function MagicTreeStudio({
                     aria-pressed={isSelected}
                     title={palette.label}
                     onClick={() => setFlowerColor(palette.id)}
-                    className={`group flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                    className={`group flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer ${
                       isSelected
                         ? "border-slate-900 dark:border-white bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
                         : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
                     }`}
                   >
                     <span
-                      className="size-4 rounded-full border border-black/15 shrink-0"
+                      className="size-3.5 rounded-full border border-black/15 shrink-0"
                       style={{ backgroundColor: palette.swatchHex }}
                     />
                     <span>{palette.label}</span>
@@ -587,21 +586,21 @@ export function MagicTreeStudio({
           </div>
 
           {/* Share & Export Bar */}
-          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={handleCopyShareLink}
-              className="inline-flex min-h-[42px] items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors cursor-pointer"
+              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors cursor-pointer"
             >
               {copiedLink ? (
                 <>
                   <Check className="size-4" aria-hidden="true" />
-                  <span>Đã copy link hoạt ảnh!</span>
+                  <span>Đã copy link 3D!</span>
                 </>
               ) : (
                 <>
                   <Copy className="size-4" aria-hidden="true" />
-                  <span>Copy link hoạt ảnh (/magic)</span>
+                  <span>Copy link 3D (/magic)</span>
                 </>
               )}
             </button>
@@ -611,27 +610,25 @@ export function MagicTreeStudio({
                 href={sharePath}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[42px] items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
-                <ExternalLink className="size-4 text-indigo-500" aria-hidden="true" />
-                <span>Mở trang xem /magic</span>
+                <ExternalLink className="size-3.5 text-indigo-500" aria-hidden="true" />
+                <span>Mở /magic</span>
               </Link>
             )}
 
             <button
               type="button"
               onClick={handleDownloadPng}
-              className="inline-flex min-h-[42px] items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
-              <Download className="size-4 text-indigo-500" aria-hidden="true" />
-              <span>{mode === "tree" ? "Tải ảnh Cây 3D (PNG)" : "Tải ảnh QR Quét (PNG)"}</span>
+              <Download className="size-3.5 text-indigo-500" aria-hidden="true" />
+              <span>{mode === "tree" ? "Tải Cây (PNG)" : "Tải QR (PNG)"}</span>
             </button>
           </div>
 
-          <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-            <strong>Mẹo:</strong> File ảnh <code>.png</code> là ảnh tĩnh. Để người nhận thấy{" "}
-            <strong>cây hoa 3D xoay và bung nở thành mã QR</strong> (và bấm xem Video/Ảnh bạn vừa
-            tải lên), hãy bấm <em>Copy link hoạt ảnh (/magic)</em> để gửi đường dẫn tương tác!
+          <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+            <strong>Mẹo:</strong> Gửi <em>Copy link 3D (/magic)</em> để người nhận xem hiệu ứng cây hoa xoay và chạm bung thành mã QR kèm Video/Ảnh.
           </p>
         </div>
       )}

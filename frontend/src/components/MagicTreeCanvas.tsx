@@ -1120,7 +1120,7 @@ export function MagicTreeCanvas({
       onPointerCancel={() => {
         dragRef.current.active = false;
       }}
-      className="mx-auto block w-full max-w-[540px] h-[360px] sm:h-[470px] rounded-2xl touch-none select-none cursor-grab active:cursor-grabbing"
+      className="mx-auto block w-full max-w-[520px] h-[270px] sm:h-[340px] lg:h-[395px] rounded-2xl touch-none select-none cursor-grab active:cursor-grabbing"
     />
   );
 }

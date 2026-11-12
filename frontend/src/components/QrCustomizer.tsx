@@ -595,9 +595,9 @@ export function QrCustomizer({
     config.frameStyle !== "phone-mockup";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-5 lg:gap-6 items-start">
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 items-start">
       {/* Left: Sticky Live QR Preview & Export */}
-      <div className="md:col-span-5 md:sticky md:top-20 flex flex-col items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 p-4 sm:p-6">
+      <div className="md:col-span-5 md:sticky md:top-16 flex flex-col items-center gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 p-3 sm:p-4">
         <div className="flex w-full items-center justify-between gap-2">
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
             <Sparkles className="size-3.5 text-indigo-500" aria-hidden="true" />
@@ -676,7 +676,7 @@ export function QrCustomizer({
       </div>
 
       {/* Right: Organized Studio Controls */}
-      <div className="md:col-span-7 space-y-5 min-w-0">
+      <div className="md:col-span-7 space-y-4 min-w-0">
         {/* Quick Presets always visible at top */}
         <fieldset className="space-y-2.5">
           <legend className="text-sm font-bold flex items-center gap-2">
