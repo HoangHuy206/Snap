@@ -60,7 +60,6 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
   const [errorMsg, setErrorMsg] = useState("");
 
   const [activeItem, setActiveItem] = useState<MediaItem | null>(initialItem);
-  const [step1SourceKey, setStep1SourceKey] = useState(0);
   const [qrConfig, setQrConfig] = useState<QrDesignConfig>(() => getInitialQrConfig(initialItem));
   const [qrPresentation, setQrPresentation] = useState<QrPresentationMode>("static");
   const [savingConfig, setSavingConfig] = useState(false);
@@ -128,7 +127,6 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
         (pct) => setUploadProgress(pct),
       );
       setActiveItem(created);
-      setStep1SourceKey((k) => k + 1);
       saveQrHistoryEntry(created, qrConfig);
       onItemSaved?.();
     } catch (err) {
@@ -491,8 +489,15 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
             />
           ) : (
             <MagicTreeStudio
-              key={`magic-${step1SourceKey}`}
               linkedMedia={activeItem}
+              pendingFile={selectedFile}
+              pendingTitle={title}
+              pendingExpiryDays={expiryDays}
+              creatingPending={uploading}
+              createPendingProgress={uploadProgress}
+              createPendingError={errorMsg}
+              onPickPendingFile={handleFilePick}
+              onCreatePendingQr={() => void handleCreateQr()}
               initialConfig={
                 activeItem
                   ? { url: shareUrl, season: "spring", flowerColor: "rose" }
