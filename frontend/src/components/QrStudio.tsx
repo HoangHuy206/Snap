@@ -61,6 +61,7 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
   const [errorMsg, setErrorMsg] = useState("");
 
   const [activeItem, setActiveItem] = useState<MediaItem | null>(initialItem);
+  const [step1SourceKey, setStep1SourceKey] = useState(0);
   const [qrConfig, setQrConfig] = useState<QrDesignConfig>(() => getInitialQrConfig(initialItem));
   const [qrPresentation, setQrPresentation] = useState<QrPresentationMode>("static");
   const [savingConfig, setSavingConfig] = useState(false);
@@ -126,6 +127,7 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
         (pct) => setUploadProgress(pct),
       );
       setActiveItem(created);
+      setStep1SourceKey((k) => k + 1);
       saveQrHistoryEntry(created, qrConfig);
       onItemSaved?.();
     } catch (err) {
@@ -444,7 +446,7 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 {qrPresentation === "static"
                   ? "Chỉnh kiểu chấm, màu Gradient, gắn logo ở giữa và thêm khung chữ kêu gọi quét trước khi tải PNG/SVG."
-                  : "Biến đường dẫn URL (hoặc link QR vừa tạo) thành Cây Hoa 3D tương tác chạm mở mã QR."}
+                  : "Biến Video, Ảnh, Tệp tin (hoặc Link URL) thành Cây Hoa 3D tương tác chạm mở mã QR."}
               </p>
             </div>
 
@@ -478,7 +480,7 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
                 }`}
               >
                 <Trees className="size-4 shrink-0" aria-hidden="true" />
-                <span>QR Cây 3D (Link)</span>
+                <span>QR Cây 3D Hoạt Ảnh</span>
               </button>
             </div>
           </div>
@@ -494,12 +496,17 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
             />
           ) : (
             <MagicTreeStudio
-              key={activeItem ? activeItem.code : "custom-link"}
+              key={`magic-${step1SourceKey}`}
+              linkedMedia={activeItem}
               initialConfig={
                 activeItem
                   ? { url: shareUrl, season: "spring", flowerColor: "rose" }
                   : undefined
               }
+              onMediaUploaded={(created) => {
+                setActiveItem(created);
+                onItemSaved?.();
+              }}
             />
           )}
         </section>
