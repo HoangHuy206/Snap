@@ -127,6 +127,9 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  verification: {
+    google: "m5coQsYKy0TSp1gTbsLylOVhq5OdHe_dohaiFqbQy0k",
+  },
 };
 
 const GLOBAL_STRUCTURED_DATA = {
