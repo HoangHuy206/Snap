@@ -10,8 +10,10 @@ import {
   Film,
   KeyRound,
   Plus,
+  QrCode,
   RefreshCw,
   Settings2,
+  Trees,
   AlertCircle,
 } from "lucide-react";
 import {
@@ -25,7 +27,10 @@ import {
 import { saveQrHistoryEntry, updateHistoryItemInfo } from "@/lib/history";
 import { DEFAULT_QR_CONFIG, resolveQrConfig } from "@/lib/qr-presets";
 import { QrCustomizer } from "./QrCustomizer";
+import { MagicTreeStudio } from "./MagicTreeStudio";
 import { ScrollReveal } from "./ScrollReveal";
+
+type QrPresentationMode = "static" | "magic";
 
 interface QrStudioProps {
   initialItem?: MediaItem | null;
@@ -57,6 +62,7 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
 
   const [activeItem, setActiveItem] = useState<MediaItem | null>(initialItem);
   const [qrConfig, setQrConfig] = useState<QrDesignConfig>(() => getInitialQrConfig(initialItem));
+  const [qrPresentation, setQrPresentation] = useState<QrPresentationMode>("static");
   const [savingConfig, setSavingConfig] = useState(false);
   const [copiedKey, setCopiedKey] = useState<"share" | "manage" | null>(null);
 
@@ -432,21 +438,70 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
       {/* Step 2: QR Studio Customizer */}
       <ScrollReveal>
         <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-4 sm:p-7 shadow-sm space-y-5">
-          <div>
-            <h2 className="text-xl font-bold tracking-tight">2. Tùy biến QR đẹp &amp; nổi bật</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Chỉnh kiểu chấm, màu Gradient, gắn logo ở giữa và thêm khung chữ kêu gọi quét trước khi tải PNG/SVG.
-            </p>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight">2. Tùy biến QR đẹp &amp; nổi bật</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                {qrPresentation === "static"
+                  ? "Chỉnh kiểu chấm, màu Gradient, gắn logo ở giữa và thêm khung chữ kêu gọi quét trước khi tải PNG/SVG."
+                  : "Biến đường dẫn URL (hoặc link QR vừa tạo) thành Cây Hoa 3D tương tác chạm mở mã QR."}
+              </p>
+            </div>
+
+            <div
+              role="group"
+              aria-label="Chọn kiểu hiển thị QR"
+              className="grid grid-cols-2 sm:inline-flex gap-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-1 shrink-0"
+            >
+              <button
+                type="button"
+                aria-pressed={qrPresentation === "static"}
+                onClick={() => setQrPresentation("static")}
+                className={`inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                  qrPresentation === "static"
+                    ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-300 shadow-xs"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                }`}
+              >
+                <QrCode className="size-4 shrink-0" aria-hidden="true" />
+                <span>QR Khung Tĩnh</span>
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={qrPresentation === "magic"}
+                onClick={() => setQrPresentation("magic")}
+                className={`inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                  qrPresentation === "magic"
+                    ? "bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-300 shadow-xs"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                }`}
+              >
+                <Trees className="size-4 shrink-0" aria-hidden="true" />
+                <span>QR Cây 3D (Link)</span>
+              </button>
+            </div>
           </div>
 
-          <QrCustomizer
-            qrValue={shareUrl}
-            config={qrConfig}
-            onChange={setQrConfig}
-            isLiveLinked={Boolean(activeItem)}
-            onSaveConfigToServer={activeItem?.edit_token ? handleSaveConfigToServer : undefined}
-            savingConfig={savingConfig}
-          />
+          {qrPresentation === "static" ? (
+            <QrCustomizer
+              qrValue={shareUrl}
+              config={qrConfig}
+              onChange={setQrConfig}
+              isLiveLinked={Boolean(activeItem)}
+              onSaveConfigToServer={activeItem?.edit_token ? handleSaveConfigToServer : undefined}
+              savingConfig={savingConfig}
+            />
+          ) : (
+            <MagicTreeStudio
+              key={activeItem ? activeItem.code : "custom-link"}
+              initialConfig={
+                activeItem
+                  ? { url: shareUrl, season: "spring", flowerColor: "rose" }
+                  : undefined
+              }
+            />
+          )}
         </section>
       </ScrollReveal>
     </div>

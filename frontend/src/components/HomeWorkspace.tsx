@@ -2,12 +2,11 @@
 
 import type { ReactNode } from "react";
 import { useState, useSyncExternalStore } from "react";
-import { DownloadCloud, QrCode, Sparkles, Trees } from "lucide-react";
+import { DownloadCloud, QrCode, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { QrStudio } from "@/components/QrStudio";
 import { SocialDownloader } from "@/components/SocialDownloader";
-import { MagicTreeStudio } from "@/components/MagicTreeStudio";
 import { RecentHistory } from "@/components/RecentHistory";
 import { FeedbackSection } from "@/components/FeedbackSection";
 import { ScrollReveal } from "@/components/ScrollReveal";
@@ -21,7 +20,7 @@ import {
   type LocalQrHistoryEntry,
 } from "@/lib/history";
 
-type ActiveTab = "qr" | "social" | "magic";
+type ActiveTab = "qr" | "social";
 
 function subscribePopState(callback: () => void): () => void {
   window.addEventListener("popstate", callback);
@@ -31,7 +30,7 @@ function subscribePopState(callback: () => void): () => void {
 function getTabFromLocation(): ActiveTab | null {
   if (typeof window === "undefined") return null;
   const tab = new URLSearchParams(window.location.search).get("tab");
-  return tab === "social" || tab === "qr" || tab === "magic" ? tab : null;
+  return tab === "social" || tab === "qr" ? tab : null;
 }
 
 function getServerTabSnapshot(): ActiveTab | null {
@@ -150,21 +149,6 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
               <DownloadCloud className="size-4 shrink-0" aria-hidden="true" />
               <span>Tải Video &amp; Ảnh MXH</span>
             </button>
-
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === "magic"}
-              onClick={() => setTabOverride("magic")}
-              className={`col-span-2 sm:col-span-1 inline-flex min-h-[46px] items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                activeTab === "magic"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <Trees className="size-4 shrink-0" aria-hidden="true" />
-              <span>QR Hoạt Ảnh 3D (Link)</span>
-            </button>
           </div>
         </section>
 
@@ -174,10 +158,8 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
             key={`${selectedQrItem?.code ?? "new"}-${studioResetKey}`}
             initialItem={selectedQrItem}
           />
-        ) : activeTab === "social" ? (
-          <SocialDownloader onSendToQrStudio={handleSendToQrStudio} />
         ) : (
-          <MagicTreeStudio />
+          <SocialDownloader onSendToQrStudio={handleSendToQrStudio} />
         )}
 
         {history.length > 0 && (
