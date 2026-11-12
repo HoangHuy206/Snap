@@ -120,6 +120,7 @@
   html,
   body {
     min-block-size: 100dvh;
+    overflow-x: clip;
     background-color: var(--bg);
     color: var(--text);
     font-family: var(--font-sans-vn), system-ui, -apple-system, sans-serif;
@@ -285,4 +286,18 @@ progress.snap-progress:indeterminate {
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     transition-delay: var(--vidqr-reveal-delay, 0ms);
   }
+}
+
+/* Prevent iOS/Android WebView auto-zoom on form focus & disable double-tap zoom inside native app */
+@media (max-width: 767px), (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  select,
+  textarea {
+    font-size: max(16px, 1rem) !important;
+  }
+}
+
+:root[data-native-app="true"],
+:root[data-native-app="true"] body {
+  touch-action: manipulation;
 }

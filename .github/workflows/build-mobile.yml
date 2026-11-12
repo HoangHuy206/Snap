@@ -85,7 +85,16 @@ jobs:
         run: |
           npx cap add android
           npx capacitor-assets generate --android
-          cp native/android/MainActivity.java android/app/src/main/java/app/vidqr/studio/MainActivity.java
+          cp native/android/*.java android/app/src/main/java/app/vidqr/studio/
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest_path = Path("android/app/src/main/AndroidManifest.xml")
+          xml = manifest_path.read_text(encoding="utf-8")
+          perm = '<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />'
+          if "WRITE_EXTERNAL_STORAGE" not in xml:
+              xml = xml.replace("<application", f"    {perm}\n\n    <application", 1)
+              manifest_path.write_text(xml, encoding="utf-8")
+          PY
 
       - name: Set Android versionCode and versionName
         env:

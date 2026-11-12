@@ -1,3 +1,9 @@
+import {
+  getVidQRMediaPlugin,
+  isCapacitorNativeApp,
+  type NativeMediaKind,
+} from "@/lib/native-bridge";
+
 export const API_BASE_URL =
   (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "");
 
@@ -342,26 +348,47 @@ export async function inspectSocialLink(url: string): Promise<SocialInspectResul
   return res.json();
 }
 
-export async function downloadSocialMediaFile(url: string, formatId: string, suggestedTitle: string, ext: string): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/social/download`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url, format_id: formatId }),
-  });
-  if (!res.ok) {
-    throw new Error(await parseError(res, "Tải media thất bại."));
-  }
-  const blob = await res.blob();
-  const disposition = res.headers.get("content-disposition") || "";
-  let filename = `${suggestedTitle.slice(0, 60) || "vidqr_media"}.${ext || "mp4"}`;
+export interface SocialDownloadResult {
+  savedTo: "photos" | "downloads" | "files" | "share" | "browser";
+  filename: string;
+}
+
+function extractDispositionFilename(disposition: string, fallback: string): string {
   const utfMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
   if (utfMatch?.[1]) {
     try {
-      filename = decodeURIComponent(utfMatch[1]);
+      return decodeURIComponent(utfMatch[1]);
     } catch {
       // keep fallback
     }
   }
+  const asciiMatch = disposition.match(/filename="([^"]+)"/i);
+  if (asciiMatch?.[1]) {
+    return asciiMatch[1];
+  }
+  return fallback;
+}
+
+async function saveBlobViaBrowserOrShare(
+  blob: Blob,
+  filename: string,
+  mimeHint: string,
+): Promise<"share" | "browser"> {
+  if (isCapacitorNativeApp() && typeof navigator !== "undefined" && navigator.share && navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: blob.type || mimeHint });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: filename });
+        return "share";
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        throw new Error("Bạn đã hủy lưu tệp.");
+      }
+      // Fallback to browser download below
+    }
+  }
+
   const objectUrl = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = objectUrl;
@@ -370,6 +397,86 @@ export async function downloadSocialMediaFile(url: string, formatId: string, sug
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+  return "browser";
+}
+
+export async function downloadSocialMediaFile(
+  url: string,
+  formatId: string,
+  suggestedTitle: string,
+  ext: string,
+  kind: NativeMediaKind = "video",
+): Promise<SocialDownloadResult> {
+  const fallbackFilename = `${(suggestedTitle || "vidqr_media").slice(0, 60)}.${ext || "mp4"}`;
+  const endpoint = `${API_BASE_URL}/api/social/download`;
+  const payload = JSON.stringify({ url, format_id: formatId });
+
+  const nativePlugin = getVidQRMediaPlugin();
+  if (nativePlugin?.saveMediaFromUrl) {
+    const saved = await nativePlugin.saveMediaFromUrl({
+      url: endpoint,
+      method: "POST",
+      body: payload,
+      filename: fallbackFilename,
+      kind,
+    });
+    return {
+      savedTo: saved.savedTo,
+      filename: saved.filename || fallbackFilename,
+    };
+  }
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: payload,
+  });
+  if (!res.ok) {
+    throw new Error(await parseError(res, "Tải media thất bại."));
+  }
+  const blob = await res.blob();
+  const filename = extractDispositionFilename(
+    res.headers.get("content-disposition") || "",
+    fallbackFilename,
+  );
+  const savedTo = await saveBlobViaBrowserOrShare(
+    blob,
+    filename,
+    kind === "image" ? "image/jpeg" : kind === "audio" ? "audio/mpeg" : "video/mp4",
+  );
+  return { savedTo, filename };
+}
+
+export async function downloadGalleryImageFile(
+  imageUrl: string,
+  suggestedFilename: string,
+): Promise<SocialDownloadResult> {
+  const endpoint = getProxyImageUrl(imageUrl, true, suggestedFilename);
+  const nativePlugin = getVidQRMediaPlugin();
+  if (nativePlugin?.saveMediaFromUrl) {
+    const saved = await nativePlugin.saveMediaFromUrl({
+      url: endpoint,
+      method: "GET",
+      filename: suggestedFilename,
+      kind: "image",
+    });
+    return {
+      savedTo: saved.savedTo,
+      filename: saved.filename || suggestedFilename,
+    };
+  }
+
+  const res = await fetch(endpoint);
+  if (!res.ok) {
+    throw new Error(await parseError(res, "Không thể tải ảnh."));
+  }
+  const blob = await res.blob();
+  const filename = extractDispositionFilename(
+    res.headers.get("content-disposition") || "",
+    suggestedFilename,
+  );
+  const savedTo = await saveBlobViaBrowserOrShare(blob, filename, "image/jpeg");
+  return { savedTo, filename };
 }
 
 export async function saveSocialMediaToQr(params: {

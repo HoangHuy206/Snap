@@ -14,8 +14,10 @@ import {
   Search,
   ShieldCheck,
   Video,
+  X,
 } from "lucide-react";
 import {
+  downloadGalleryImageFile,
   downloadSocialMediaFile,
   formatBytes,
   formatDuration,
@@ -23,8 +25,11 @@ import {
   inspectSocialLink,
   saveSocialMediaToQr,
   type MediaItem,
+  type SocialDownloadResult,
+  type SocialGalleryItem,
   type SocialInspectResult,
 } from "@/lib/api";
+import { readNativeOrWebClipboard, type NativeMediaKind } from "@/lib/native-bridge";
 
 interface SocialDownloaderProps {
   onSendToQrStudio: (item: MediaItem) => void;
@@ -50,18 +55,57 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
     state: "idle" | "pasted" | "error";
     message: string;
   }>({ state: "idle", message: "" });
+  const [toastNotification, setToastNotification] = useState<{
+    title: string;
+    detail: string;
+  } | null>(null);
 
   const urlInputId = useId();
   const pasteStatusId = useId();
   const urlInputRef = useRef<HTMLInputElement | null>(null);
   const pasteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastPasteStatusRef = useRef("");
 
   useEffect(() => {
     return () => {
       if (pasteTimerRef.current) clearTimeout(pasteTimerRef.current);
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     };
   }, []);
+
+  const showSuccessToast = (title: string, detail: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToastNotification({ title, detail });
+    toastTimerRef.current = setTimeout(() => {
+      setToastNotification(null);
+    }, 6500);
+  };
+
+  const formatDownloadOutcome = (outcome: SocialDownloadResult): { title: string; detail: string } => {
+    if (outcome.savedTo === "photos") {
+      return {
+        title: "Đã tải xuống thành công và được lưu vào trong Ảnh!",
+        detail: `Tệp "${outcome.filename}" đã có trong Thư viện Ảnh của bạn.`,
+      };
+    }
+    if (outcome.savedTo === "share") {
+      return {
+        title: "Đã tải tệp xong — chọn Lưu Video / Lưu Hình ảnh",
+        detail: `Chọn "Lưu" trong bảng chia sẻ để lưu "${outcome.filename}" vào Ảnh.`,
+      };
+    }
+    if (outcome.savedTo === "downloads" || outcome.savedTo === "files") {
+      return {
+        title: "Đã tải xuống thành công!",
+        detail: `Tệp "${outcome.filename}" đã lưu vào mục Tệp / Tải xuống trên máy.`,
+      };
+    }
+    return {
+      title: "Đã tải xuống thành công!",
+      detail: `Tệp "${outcome.filename}" đã lưu vào thư mục Tải xuống của trình duyệt.`,
+    };
+  };
 
   const showPasteStatus = (state: "pasted" | "error", rawMessage: string) => {
     if (pasteTimerRef.current) clearTimeout(pasteTimerRef.current);
@@ -75,19 +119,10 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
   };
 
   const handlePasteFromClipboard = async () => {
-    if (!navigator.clipboard?.readText) {
-      urlInputRef.current?.focus();
-      showPasteStatus(
-        "error",
-        "Trình duyệt không hỗ trợ đọc bộ nhớ tạm ở kết nối này — nhấn giữ ô nhập hoặc bấm Ctrl+V để dán.",
-      );
-      return;
-    }
-
     try {
-      const clipText = (await navigator.clipboard.readText()).trim();
+      const clipText = await readNativeOrWebClipboard();
       if (!clipText) {
-        urlInputRef.current?.focus();
+        urlInputRef.current?.focus({ preventScroll: true });
         showPasteStatus(
           "error",
           "Bộ nhớ tạm đang trống — hãy sao chép liên kết video trước rồi bấm Dán.",
@@ -97,13 +132,15 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
 
       setUrlInput(clipText);
       if (errorMsg) setErrorMsg("");
-      urlInputRef.current?.focus();
       showPasteStatus("pasted", "Đã dán liên kết từ bộ nhớ tạm!");
-    } catch {
-      urlInputRef.current?.focus();
+    } catch (err) {
+      urlInputRef.current?.focus({ preventScroll: true });
+      const unavailable = err instanceof Error && err.message === "CLIPBOARD_UNAVAILABLE";
       showPasteStatus(
         "error",
-        "Bạn chưa cấp quyền đọc bộ nhớ tạm — hãy cho phép hoặc bấm Ctrl+V vào ô nhập.",
+        unavailable
+          ? "Trình duyệt không hỗ trợ đọc bộ nhớ tạm ở kết nối này — nhấn giữ ô nhập để dán."
+          : "Chưa có quyền đọc bộ nhớ tạm — nhấn giữ ô nhập để dán thủ công.",
       );
     }
   };
@@ -131,17 +168,45 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
     }
   };
 
-  const handleDownload = async (formatId: string, ext: string) => {
+  const handleDownload = async (formatId: string, ext: string, kind: NativeMediaKind = "video") => {
     if (!result) return;
     setBusyActionId(`dl:${formatId}`);
     setErrorMsg("");
-    setStatusMsg("Đang trích xuất luồng sạch không logo và gửi về máy của bạn...");
+    setStatusMsg("Đang tải luồng sạch không logo về máy...");
     try {
-      await downloadSocialMediaFile(result.source_url, formatId, result.title, ext);
-      setStatusMsg("Tải xuống hoàn tất!");
+      const outcome = await downloadSocialMediaFile(
+        result.source_url,
+        formatId,
+        result.title,
+        ext,
+        kind,
+      );
+      const summary = formatDownloadOutcome(outcome);
+      setStatusMsg(summary.title);
+      showSuccessToast(summary.title, summary.detail);
     } catch (err) {
       setStatusMsg("");
       setErrorMsg(err instanceof Error ? err.message : "Tải tệp thất bại.");
+    } finally {
+      setBusyActionId(null);
+    }
+  };
+
+  const handleDownloadGalleryImage = async (item: SocialGalleryItem) => {
+    setBusyActionId(`gallery:${item.index}`);
+    setErrorMsg("");
+    setStatusMsg(`Đang tải ảnh #${item.index} về máy...`);
+    try {
+      const outcome = await downloadGalleryImageFile(
+        item.url,
+        `vidqr_${item.index}.${item.ext || "jpg"}`,
+      );
+      const summary = formatDownloadOutcome(outcome);
+      setStatusMsg(summary.title);
+      showSuccessToast(summary.title, summary.detail);
+    } catch (err) {
+      setStatusMsg("");
+      setErrorMsg(err instanceof Error ? err.message : "Tải ảnh thất bại.");
     } finally {
       setBusyActionId(null);
     }
@@ -221,7 +286,7 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
                 spellCheck={false}
                 enterKeyHint="go"
                 aria-describedby={pasteStatusId}
-                className="w-full min-h-[52px] sm:min-h-[48px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-28 py-2.5 text-sm"
+                className="w-full min-h-[52px] sm:min-h-[48px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-24 sm:pr-28 py-2.5 text-base sm:text-sm"
               />
               <button
                 type="button"
@@ -388,7 +453,7 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
                         <button
                           type="button"
                           disabled={busyActionId !== null}
-                          onClick={() => handleDownload(fmt.id, fmt.ext)}
+                          onClick={() => handleDownload(fmt.id, fmt.ext, fmt.kind)}
                           className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 px-3 sm:px-4 py-2 text-xs font-bold text-white cursor-pointer transition-colors"
                         >
                           <Download className="size-3.5 shrink-0" aria-hidden="true" />
@@ -434,13 +499,15 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
                     <div className="p-2.5 flex items-center justify-between gap-2">
                       <span className="text-xs font-medium truncate">#{item.index}</span>
                       {item.kind === "image" && (
-                        <a
-                          href={getProxyImageUrl(item.url, true, `vidqr_${item.index}.${item.ext}`)}
-                          className="inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 text-xs font-semibold"
+                        <button
+                          type="button"
+                          disabled={busyActionId !== null}
+                          onClick={() => handleDownloadGalleryImage(item)}
+                          className="inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 disabled:opacity-60 px-3 text-xs font-semibold cursor-pointer"
                         >
                           <Download className="size-3" aria-hidden="true" />
-                          Tải ảnh
-                        </a>
+                          {busyActionId === `gallery:${item.index}` ? "Đang lưu..." : "Tải ảnh"}
+                        </button>
                       )}
                     </div>
                   </div>
@@ -449,6 +516,28 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
             </div>
           )}
         </section>
+      )}
+
+      {toastNotification && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed left-1/2 -translate-x-1/2 bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] z-50 w-[calc(100%-1.5rem)] max-w-md rounded-2xl border border-emerald-400/50 bg-emerald-600 text-white shadow-2xl px-4 py-3.5 flex items-start gap-3"
+        >
+          <CheckCircle2 className="size-5 shrink-0 mt-0.5 text-emerald-100" aria-hidden="true" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold leading-snug">{toastNotification.title}</p>
+            <p className="text-xs text-emerald-50/90 mt-0.5 break-words">{toastNotification.detail}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setToastNotification(null)}
+            aria-label="Đóng thông báo"
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg hover:bg-white/15 cursor-pointer"
+          >
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        </div>
       )}
     </div>
   );

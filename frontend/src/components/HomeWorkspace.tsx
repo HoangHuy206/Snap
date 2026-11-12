@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Download, DownloadCloud, QrCode, Smartphone, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -11,6 +11,7 @@ import { RecentHistory } from "@/components/RecentHistory";
 import { FeedbackSection } from "@/components/FeedbackSection";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import type { MediaItem } from "@/lib/api";
+import { isCapacitorNativeApp, lockNativeViewportZoom } from "@/lib/native-bridge";
 import { MOBILE_APP_DOWNLOADS } from "@/lib/site";
 import {
   getServerHistorySnapshot,
@@ -43,11 +44,7 @@ function subscribeNoop(): () => void {
 }
 
 function getIsNativeAppSnapshot(): boolean {
-  if (typeof window === "undefined") return false;
-  const w = window as Window & {
-    Capacitor?: { isNativePlatform?: () => boolean };
-  };
-  return Boolean(w.Capacitor?.isNativePlatform?.());
+  return isCapacitorNativeApp();
 }
 
 function getIsNativeAppServerSnapshot(): boolean {
@@ -74,6 +71,12 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
     getIsNativeAppSnapshot,
     getIsNativeAppServerSnapshot,
   );
+
+  useEffect(() => {
+    if (isNativeApp) {
+      lockNativeViewportZoom();
+    }
+  }, [isNativeApp]);
 
   const history = useSyncExternalStore(
     subscribeQrHistory,
@@ -116,7 +119,7 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col">
+    <div className="min-h-[100dvh] w-full overflow-x-clip flex flex-col">
       <Header />
 
       <main className="flex-1 mx-auto w-full max-w-6xl px-3 sm:px-6 py-3 sm:py-5">

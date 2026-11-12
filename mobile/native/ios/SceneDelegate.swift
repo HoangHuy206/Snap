@@ -1,5 +1,247 @@
 import UIKit
+import WebKit
+import Photos
+import UniformTypeIdentifiers
 import Capacitor
+
+private final class VidQRBridgeViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        super.capacitorDidLoad()
+        bridge?.registerPluginInstance(VidQRMediaPlugin())
+        webView?.scrollView.minimumZoomScale = 1.0
+        webView?.scrollView.maximumZoomScale = 1.0
+        webView?.scrollView.bouncesZoom = false
+    }
+}
+
+@objc(VidQRMediaPlugin)
+public final class VidQRMediaPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "VidQRMediaPlugin"
+    public let jsName = "VidQRMedia"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "readClipboard", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "saveMediaFromUrl", returnType: CAPPluginReturnPromise),
+    ]
+
+    @objc func readClipboard(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            call.resolve(["value": UIPasteboard.general.string ?? ""])
+        }
+    }
+
+    @objc func saveMediaFromUrl(_ call: CAPPluginCall) {
+        guard let rawUrl = call.getString("url")?.trimmingCharacters(in: .whitespacesAndNewlines),
+              let targetUrl = URL(string: rawUrl) else {
+            call.reject("Thiếu đường dẫn tệp cần tải.")
+            return
+        }
+
+        let method = (call.getString("method") ?? "GET").uppercased()
+        let body = call.getString("body") ?? ""
+        let fallbackFilename = call.getString("filename") ?? "vidqr_media.mp4"
+        let requestedKind = (call.getString("kind") ?? "").lowercased()
+
+        let startDownload: () -> Void = {
+            var request = URLRequest(url: targetUrl, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 300)
+            request.httpMethod = method
+            if method == "POST" && !body.isEmpty {
+                request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
+                request.httpBody = body.data(using: .utf8)
+            }
+
+            let task = URLSession.shared.downloadTask(with: request) { tempLocalUrl, response, error in
+                if let error = error {
+                    call.reject(error.localizedDescription)
+                    return
+                }
+
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    call.reject("Phản hồi máy chủ không hợp lệ.")
+                    return
+                }
+
+                if !(200...299).contains(httpResponse.statusCode) {
+                    if let tempUrl = tempLocalUrl,
+                       let errData = try? Data(contentsOf: tempUrl),
+                       let obj = try? JSONSerialization.jsonObject(with: errData) as? [String: Any],
+                       let detail = obj["detail"] as? String,
+                       !detail.isEmpty {
+                        call.reject(detail)
+                    } else {
+                        call.reject("Tải media thất bại (HTTP \(httpResponse.statusCode)).")
+                    }
+                    return
+                }
+
+                guard let tempLocalUrl = tempLocalUrl else {
+                    call.reject("Không nhận được dữ liệu tệp tải về.")
+                    return
+                }
+
+                let disposition = httpResponse.value(forHTTPHeaderField: "Content-Disposition") ?? ""
+                let mimeType = (httpResponse.mimeType ?? "").lowercased()
+                let resolvedName = Self.resolveFilename(
+                    disposition: disposition,
+                    fallback: fallbackFilename,
+                    mimeType: mimeType,
+                    requestedKind: requestedKind
+                )
+                let actualKind = Self.resolveKind(mimeType: mimeType, filename: resolvedName, requestedKind: requestedKind)
+                let ext = Self.extractExtension(from: resolvedName, kind: actualKind, mimeType: mimeType)
+
+                let stagedUrl = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("vidqr_\(UUID().uuidString).\(ext)")
+
+                do {
+                    if FileManager.default.fileExists(atPath: stagedUrl.path) {
+                        try FileManager.default.removeItem(at: stagedUrl)
+                    }
+                    try FileManager.default.moveItem(at: tempLocalUrl, to: stagedUrl)
+                } catch {
+                    call.reject("Không thể lưu tạm tệp trên máy: \(error.localizedDescription)")
+                    return
+                }
+
+                if actualKind == "audio" {
+                    let docsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                    let destUrl = Self.uniqueDestinationUrl(in: docsDir, filename: resolvedName)
+                    do {
+                        try FileManager.default.moveItem(at: stagedUrl, to: destUrl)
+                        call.resolve([
+                            "savedTo": "files",
+                            "filename": destUrl.lastPathComponent,
+                            "kind": actualKind,
+                        ])
+                    } catch {
+                        try? FileManager.default.removeItem(at: stagedUrl)
+                        call.reject("Không thể lưu file âm thanh: \(error.localizedDescription)")
+                    }
+                    return
+                }
+
+                PHPhotoLibrary.shared().performChanges({
+                    if actualKind == "image" {
+                        _ = PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: stagedUrl)
+                    } else {
+                        _ = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: stagedUrl)
+                    }
+                }, completionHandler: { success, saveError in
+                    try? FileManager.default.removeItem(at: stagedUrl)
+                    if success {
+                        call.resolve([
+                            "savedTo": "photos",
+                            "filename": resolvedName,
+                            "kind": actualKind,
+                        ])
+                    } else {
+                        call.reject("Không thể lưu vào Ảnh: \(saveError?.localizedDescription ?? "Định dạng không được iOS hỗ trợ")")
+                    }
+                })
+            }
+            task.resume()
+        }
+
+        if requestedKind == "audio" {
+            startDownload()
+            return
+        }
+
+        Self.ensurePhotoAddPermission { granted in
+            if granted {
+                startDownload()
+            } else {
+                call.reject("Bạn chưa cấp quyền lưu vào Ảnh. Hãy mở Cài đặt → VidQR Studio → Ảnh và cho phép thêm ảnh.")
+            }
+        }
+    }
+
+    private static func ensurePhotoAddPermission(completion: @escaping (Bool) -> Void) {
+        if #available(iOS 14, *) {
+            let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+            if status == .authorized || status == .limited {
+                completion(true)
+            } else if status == .notDetermined {
+                PHPhotoLibrary.requestAuthorization(for: .addOnly) { newStatus in
+                    completion(newStatus == .authorized || newStatus == .limited)
+                }
+            } else {
+                completion(false)
+            }
+        } else {
+            let status = PHPhotoLibrary.authorizationStatus()
+            if status == .authorized {
+                completion(true)
+            } else if status == .notDetermined {
+                PHPhotoLibrary.requestAuthorization { newStatus in
+                    completion(newStatus == .authorized)
+                }
+            } else {
+                completion(false)
+            }
+        }
+    }
+
+    private static func resolveFilename(disposition: String, fallback: String, mimeType: String, requestedKind: String) -> String {
+        var name = ""
+        if let utfRange = disposition.range(of: "filename\\*=UTF-8''([^;\\r\\n]+)", options: [.regularExpression, .caseInsensitive]) {
+            let rawPart = String(disposition[utfRange]).replacingOccurrences(of: "filename*=UTF-8''", with: "", options: .caseInsensitive)
+            name = rawPart.removingPercentEncoding ?? rawPart
+        } else if let asciiRange = disposition.range(of: "filename=\"?([^\";\\r\\n]+)\"?", options: [.regularExpression, .caseInsensitive]) {
+            name = String(disposition[asciiRange])
+                .replacingOccurrences(of: "filename=", with: "", options: .caseInsensitive)
+                .trimmingCharacters(in: CharacterSet(charactersIn: "\" "))
+        }
+
+        if name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            name = fallback
+        }
+
+        let invalidChars = CharacterSet(charactersIn: "\\/:*?\"<>|\r\n")
+        name = name.components(separatedBy: invalidChars).joined(separator: "_").trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty { name = "vidqr_media" }
+
+        if !(name as NSString).pathExtension.isEmpty {
+            return name
+        }
+        let ext = extractExtension(from: name, kind: requestedKind, mimeType: mimeType)
+        return "\(name).\(ext)"
+    }
+
+    private static func resolveKind(mimeType: String, filename: String, requestedKind: String) -> String {
+        if mimeType.hasPrefix("image/") || requestedKind == "image" { return "image" }
+        if mimeType.hasPrefix("audio/") || requestedKind == "audio" { return "audio" }
+        let ext = (filename as NSString).pathExtension.lowercased()
+        if ["jpg", "jpeg", "png", "webp", "gif", "heic"].contains(ext) { return "image" }
+        if ["mp3", "m4a", "wav", "aac"].contains(ext) { return "audio" }
+        return "video"
+    }
+
+    private static func extractExtension(from filename: String, kind: String, mimeType: String) -> String {
+        let ext = (filename as NSString).pathExtension.lowercased()
+        if !ext.isEmpty { return ext }
+        if #available(iOS 14.0, *), !mimeType.isEmpty, let utType = UTType(mimeType: mimeType), let preferred = utType.preferredFilenameExtension {
+            return preferred
+        }
+        if kind == "image" { return "jpg" }
+        if kind == "audio" { return "m4a" }
+        return "mp4"
+    }
+
+    private static func uniqueDestinationUrl(in directory: URL, filename: String) -> URL {
+        var candidate = directory.appendingPathComponent(filename)
+        if !FileManager.default.fileExists(atPath: candidate.path) { return candidate }
+        let nsName = filename as NSString
+        let stem = nsName.deletingPathExtension
+        let ext = nsName.pathExtension
+        var index = 1
+        while FileManager.default.fileExists(atPath: candidate.path) {
+            let nextName = ext.isEmpty ? "\(stem) (\(index))" : "\(stem) (\(index)).\(ext)"
+            candidate = directory.appendingPathComponent(nextName)
+            index += 1
+        }
+        return candidate
+    }
+}
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
@@ -9,7 +251,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         let newWindow = UIWindow(windowScene: windowScene)
-        newWindow.rootViewController = CAPBridgeViewController()
+        newWindow.rootViewController = VidQRBridgeViewController()
         newWindow.makeKeyAndVisible()
         self.window = newWindow
 
