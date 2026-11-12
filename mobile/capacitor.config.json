@@ -1,0 +1,23 @@
+{
+  "appId": "app.vidqr.studio",
+  "appName": "VidQR Studio",
+  "webDir": "www",
+  "server": {
+    "url": "https://vidqr-studio.vercel.app",
+    "cleartext": false,
+    "allowNavigation": [
+      "vidqr-studio.vercel.app",
+      "*.vidqr-studio.vercel.app",
+      "snap-nine-dusky.vercel.app",
+      "snapqr-backend-production-23626c1c.up.railway.app"
+    ]
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "allowsLinkPreview": false,
+    "preferredContentMode": "mobile"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

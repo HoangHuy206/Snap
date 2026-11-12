@@ -1,0 +1,202 @@
+name: Build Mobile Apps (APK & IPA)
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_url:
+        description: "Production Web URL loaded inside mobile app"
+        required: false
+        default: "https://vidqr-studio.vercel.app"
+      version_name:
+        description: "App version (CFBundleShortVersionString / versionName)"
+        required: false
+        default: "1.0.0"
+      target:
+        description: "Platforms to build"
+        type: choice
+        default: "both"
+        options:
+          - both
+          - ios
+          - android
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build Android APK
+    if: github.event.inputs.target == 'both' || github.event.inputs.target == 'android' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "mobile/package-lock.json"
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install mobile dependencies
+        run: npm ci
+
+      - name: Apply runtime URL override if provided
+        env:
+          APP_URL: ${{ github.event.inputs.app_url }}
+        run: |
+          if [ -n "$APP_URL" ]; then
+            node -e '
+              const fs = require("fs");
+              const cfg = JSON.parse(fs.readFileSync("capacitor.config.json", "utf8"));
+              cfg.server.url = process.env.APP_URL;
+              fs.writeFileSync("capacitor.config.json", JSON.stringify(cfg, null, 2) + "\n");
+            '
+          fi
+
+      - name: Generate Android project and icons
+        run: |
+          npx cap add android
+          npx capacitor-assets generate --android
+
+      - name: Set Android versionCode and versionName
+        env:
+          VERSION_NAME: ${{ github.event.inputs.version_name || '1.0.0' }}
+          BUILD_NUM: ${{ github.run_number }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = "android/app/build.gradle";
+            let gradle = fs.readFileSync(path, "utf8");
+            gradle = gradle.replace(/versionCode\s+\d+/, "versionCode " + process.env.BUILD_NUM);
+            gradle = gradle.replace(/versionName\s+"[^"]*"/, `versionName "${process.env.VERSION_NAME}"`);
+            fs.writeFileSync(path, gradle);
+          '
+
+      - name: Build installable Android APK
+        run: |
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../VidQR-Studio.apk
+
+      - name: Upload Android APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VidQR-Studio-Android-APK
+          path: mobile/VidQR-Studio.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  build-ios:
+    name: Build iOS Unsigned IPA
+    if: github.event.inputs.target == 'both' || github.event.inputs.target == 'ios' || github.event_name == 'push'
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "mobile/package-lock.json"
+
+      - name: Inspect Xcode version
+        run: xcodebuild -version
+
+      - name: Install mobile dependencies
+        run: npm ci
+
+      - name: Apply runtime URL override if provided
+        env:
+          APP_URL: ${{ github.event.inputs.app_url }}
+        run: |
+          if [ -n "$APP_URL" ]; then
+            node -e '
+              const fs = require("fs");
+              const cfg = JSON.parse(fs.readFileSync("capacitor.config.json", "utf8"));
+              cfg.server.url = process.env.APP_URL;
+              fs.writeFileSync("capacitor.config.json", JSON.stringify(cfg, null, 2) + "\n");
+            '
+          fi
+
+      - name: Generate iOS project and icons
+        run: |
+          npx cap add ios
+          npx capacitor-assets generate --ios
+
+      - name: Configure iOS Info.plist permissions and version
+        env:
+          VERSION_NAME: ${{ github.event.inputs.version_name || '1.0.0' }}
+          BUILD_NUM: ${{ github.run_number }}
+        run: |
+          python3 - <<'PY'
+          import os, plistlib
+
+          plist_path = "ios/App/App/Info.plist"
+          with open(plist_path, "rb") as f:
+              data = plistlib.load(f)
+
+          data["CFBundleDisplayName"] = "VidQR Studio"
+          data["CFBundleShortVersionString"] = os.environ["VERSION_NAME"]
+          data["CFBundleVersion"] = os.environ["BUILD_NUM"]
+          data["NSCameraUsageDescription"] = "Cho phép VidQR Studio dùng camera để chụp ảnh hoặc quay video tạo mã QR."
+          data["NSPhotoLibraryUsageDescription"] = "Cho phép VidQR Studio chọn ảnh hoặc video từ thư viện để tạo mã QR."
+          data["NSPhotoLibraryAddUsageDescription"] = "Cho phép VidQR Studio lưu mã QR và video về thư viện ảnh."
+          data["NSMicrophoneUsageDescription"] = "Cho phép VidQR Studio thu âm khi quay video tạo mã QR."
+          data["UIFileSharingEnabled"] = True
+          data["LSSupportsOpeningDocumentsInPlace"] = True
+
+          with open(plist_path, "wb") as f:
+              plistlib.dump(data, f)
+          PY
+
+      - name: Build unsigned iOS archive and package IPA
+        run: |
+          mkdir -p build/Payload
+          xcodebuild -list -project ios/App/App.xcodeproj
+          xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/VidQRStudio.xcarchive \
+            archive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+          cp -R build/VidQRStudio.xcarchive/Products/Applications/App.app build/Payload/App.app
+          (cd build && zip -qry VidQR-Studio-unsigned.ipa Payload)
+          ls -lh build/VidQR-Studio-unsigned.ipa
+
+      - name: Upload iOS Unsigned IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VidQR-Studio-iOS-IPA
+          path: mobile/build/VidQR-Studio-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
