@@ -144,7 +144,7 @@ export const FLOWER_PALETTES: FlowerPalette[] = [
   },
 ];
 
-export const DEFAULT_MAGIC_URL = "https://snap-nine-dusky.vercel.app/";
+export const DEFAULT_MAGIC_URL = "https://vidqr-studio.vercel.app/";
 
 export function getSeasonPreset(id: SeasonId): SeasonPreset {
   return SEASON_PRESETS.find((s) => s.id === id) ?? SEASON_PRESETS[0];

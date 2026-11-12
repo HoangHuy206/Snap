@@ -2,7 +2,7 @@
 
 > VidQR Studio là nền tảng web miễn phí giúp tạo mã QR Động (Dynamic QR) cho Video & Tệp tin với khung thiết kế tùy biến (PNG HD & Vector SVG), kết hợp công cụ tải Video & Ảnh mạng xã hội không dính logo watermark.
 
-- URL chính thức: https://snap-nine-dusky.vercel.app
+- URL chính thức: https://vidqr-studio.vercel.app
 - Ngôn ngữ: Tiếng Việt (vi-VN)
 - Chi phí: Miễn phí 100%, không cần đăng ký tài khoản
 

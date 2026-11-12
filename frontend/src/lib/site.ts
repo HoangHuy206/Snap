@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://snap-nine-dusky.vercel.app";
+const DEFAULT_SITE_URL = "https://vidqr-studio.vercel.app";
 
 export function getSiteUrl(): string {
   const raw =

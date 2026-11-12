@@ -2,7 +2,7 @@
 
 ![VidQR Studio — Tạo QR Video Động & Tải Video MXH Không Logo](frontend/public/brand/vidqr-studio-banner.png)
 
-Truy cập trực tuyến miễn phí tại: **https://snap-nine-dusky.vercel.app/**
+Truy cập trực tuyến miễn phí tại: **https://vidqr-studio.vercel.app/**
 
 **VidQR Studio** là nền tảng web miễn phí tích hợp 2 công cụ chuyên dụng:
 
