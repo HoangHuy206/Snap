@@ -1,4 +1,4 @@
-# TiaQR — Media-to-QR Studio & Social Media Downloader
+# VidQR — Media-to-QR Studio & Social Media Downloader
 
 Nền tảng web đa năng gồm 2 công cụ tích hợp:
 1. **Media / File → Dynamic QR Studio:** Upload video (MP4, WebM, MOV...) hoặc bất kỳ tệp nào (ảnh, PDF, tài liệu, ZIP, audio...) để tạo trang xem/tải riêng biệt và xuất mã QR tùy biến đẹp mắt (chấm tròn, gradient, chèn logo, khung viền Call-to-Action, xuất PNG/SVG, hỗ trợ **Dynamic QR** thay đổi file bên trong mà không đổi mã QR).

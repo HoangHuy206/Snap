@@ -77,7 +77,7 @@ export function FeedbackSection() {
           </span>
           <div className="min-w-0">
             <h2 id={headingId} className="text-lg sm:text-xl font-bold tracking-tight">
-              Góp ý &amp; Đề xuất nâng cấp TiaQR
+              Góp ý &amp; Đề xuất nâng cấp VidQR
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
               Bạn muốn thêm khung QR chủ đề mới, font chữ hay gặp lỗi ở bước nào? Gửi trực tiếp để quản trị viên nhận ngay qua Telegram.

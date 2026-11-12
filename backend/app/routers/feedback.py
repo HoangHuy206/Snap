@@ -96,7 +96,7 @@ def _build_telegram_html(payload: FeedbackSubmitRequest) -> str:
     body = html.escape(payload.message.strip(), quote=False)
 
     text = (
-        "📩 <b>Góp ý mới từ TiaQR</b>\n"
+        "📩 <b>Góp ý mới từ VidQR</b>\n"
         f"• <b>Mục:</b> {html.escape(cat_label, quote=False)}\n"
         f"• <b>Người gửi:</b> {sender}\n"
         f"• <b>Liên hệ:</b> {contact}\n"
@@ -159,7 +159,7 @@ async def submit_feedback(
         return {
             "ok": True,
             "delivered_telegram": False,
-            "message": "Cảm ơn bạn đã gửi góp ý cho TiaQR!",
+            "message": "Cảm ơn bạn đã gửi góp ý cho VidQR!",
         }
 
     feedback_limiter.check(request, "feedback_submit")
@@ -179,5 +179,5 @@ async def submit_feedback(
     return {
         "ok": True,
         "delivered_telegram": delivered,
-        "message": "Cảm ơn bạn! Góp ý của bạn đã được gửi tới đội ngũ TiaQR.",
+        "message": "Cảm ơn bạn! Góp ý của bạn đã được gửi tới đội ngũ VidQR.",
     }

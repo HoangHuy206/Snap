@@ -343,7 +343,7 @@ export const QR_PRESETS: QrPreset[] = [
       frameColor: "#0f172a",
       frameColorSecondary: "#334155",
       frameLabel: "Mở Camera Quét",
-      frameSublabel: "VIDEO • TIAQR",
+      frameSublabel: "VIDEO • VIDQR",
       frameIcon: "scan",
       frameFont: "sans",
     },

@@ -1,4 +1,4 @@
-# TiaQR Docker Compose for VPS / Self-Hosted Production Deployment
+# VidQR Docker Compose for VPS / Self-Hosted Production Deployment
 # Run: docker compose up -d --build
 
 services:
@@ -26,7 +26,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      APP_NAME: TiaQR
+      APP_NAME: VidQR
       ENVIRONMENT: production
       PORT: 8000
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}

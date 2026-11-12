@@ -32,7 +32,7 @@ class Settings:
     """Centralized settings container."""
 
     def __init__(self) -> None:
-        self.app_name: str = os.getenv("APP_NAME", "TiaQR")
+        self.app_name: str = os.getenv("APP_NAME", "VidQR")
         self.environment: str = os.getenv("ENVIRONMENT", "development")
         self.port: int = int(os.getenv("PORT", "8000"))
 

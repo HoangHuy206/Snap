@@ -353,7 +353,7 @@ export async function downloadSocialMediaFile(url: string, formatId: string, sug
   }
   const blob = await res.blob();
   const disposition = res.headers.get("content-disposition") || "";
-  let filename = `${suggestedTitle.slice(0, 60) || "tiaqr_media"}.${ext || "mp4"}`;
+  let filename = `${suggestedTitle.slice(0, 60) || "vidqr_media"}.${ext || "mp4"}`;
   const utfMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
   if (utfMatch?.[1]) {
     try {

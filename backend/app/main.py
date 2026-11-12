@@ -1,4 +1,4 @@
-"""FastAPI entry point for TiaQR backend."""
+"""FastAPI entry point for VidQR backend."""
 
 from contextlib import asynccontextmanager
 import asyncio

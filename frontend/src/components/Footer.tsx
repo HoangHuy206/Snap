@@ -35,17 +35,20 @@ export function Footer({ onSelectTab }: FooterProps) {
           {/* Brand & Summary */}
           <div className="lg:col-span-5 space-y-3">
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 text-white shadow-sm">
-                <QrCode className="size-4" aria-hidden="true" />
+              <span className="inline-flex shrink-0 items-center justify-center rounded-xl transition-colors dark:bg-white/95 dark:px-2.5 dark:py-1 dark:shadow-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/brand/vidqr-logo.png"
+                  alt="VidQR"
+                  width={991}
+                  height={607}
+                  loading="lazy"
+                  className="h-9 w-auto block object-contain"
+                />
               </span>
-              <span className="flex items-center gap-2">
-                <span className="font-bold text-base tracking-tight text-slate-900 dark:text-slate-50">
-                  TiaQR
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
-                  <Sparkles className="size-3" aria-hidden="true" />
-                  Studio
-                </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
+                <Sparkles className="size-3" aria-hidden="true" />
+                Studio
               </span>
             </Link>
 
@@ -162,7 +165,7 @@ export function Footer({ onSelectTab }: FooterProps) {
         <div className="mt-7 pt-5 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-xs text-slate-500 dark:text-slate-400">
           <p>
             &copy; {currentYear}{" "}
-            <span className="font-semibold text-slate-700 dark:text-slate-300">TiaQR Studio</span>. Tất cả công cụ miễn phí cho cộng đồng.
+            <span className="font-semibold text-slate-700 dark:text-slate-300">VidQR Studio</span>. Tất cả công cụ miễn phí cho cộng đồng.
           </p>
           <p>Hỗ trợ Cloudflare R2 / S3, PostgreSQL, Dynamic QR &amp; Media Extractor</p>
         </div>

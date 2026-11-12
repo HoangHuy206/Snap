@@ -2,7 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { QrCode, Sparkles, Sun, Moon, Monitor } from "lucide-react";
+import { Sparkles, Sun, Moon, Monitor } from "lucide-react";
 
 type ThemePref = "system" | "light" | "dark";
 const THEME_KEY = "snapqr_theme";
@@ -97,15 +97,19 @@ export function Header() {
     <header className="sticky top-0 z-30 border-b border-slate-300/80 dark:border-slate-800 bg-white/90 dark:bg-[#0b101b]/90 backdrop-blur-md">
       <div className="mx-auto max-w-6xl snap-safe-top py-2.5 sm:py-3 flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2.5 sm:gap-3 min-w-0 group">
-          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 text-white shadow-sm">
-            <QrCode className="size-5" aria-hidden="true" />
+          <span className="inline-flex shrink-0 items-center justify-center rounded-xl transition-colors dark:bg-white/95 dark:px-2.5 dark:py-1 dark:shadow-sm">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/vidqr-logo.png"
+              alt="VidQR"
+              width={991}
+              height={607}
+              className="h-9 sm:h-11 w-auto block object-contain"
+            />
           </span>
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-base sm:text-lg tracking-tight text-slate-900 dark:text-slate-50 truncate">
-                TiaQR
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
                 <Sparkles className="size-3" aria-hidden="true" />
                 Studio
               </span>

@@ -435,7 +435,7 @@ export function SocialDownloader({ onSendToQrStudio }: SocialDownloaderProps) {
                       <span className="text-xs font-medium truncate">#{item.index}</span>
                       {item.kind === "image" && (
                         <a
-                          href={getProxyImageUrl(item.url, true, `tiaqr_${item.index}.${item.ext}`)}
+                          href={getProxyImageUrl(item.url, true, `vidqr_${item.index}.${item.ext}`)}
                           className="inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 text-xs font-semibold"
                         >
                           <Download className="size-3" aria-hidden="true" />

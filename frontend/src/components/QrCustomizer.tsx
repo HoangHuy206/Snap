@@ -562,7 +562,7 @@ export function QrCustomizer({
       const link = document.createElement("a");
       link.href = outUrl;
       link.download =
-        config.frameEnabled && config.frameStyle !== "none" ? "tiaqr-card.png" : "tiaqr-code.png";
+        config.frameEnabled && config.frameStyle !== "none" ? "vidqr-card.png" : "vidqr-code.png";
       link.click();
       setTimeout(() => URL.revokeObjectURL(outUrl), 1500);
       setStatusMessage(
@@ -579,7 +579,7 @@ export function QrCustomizer({
 
   const handleDownloadSvg = async () => {
     if (!qrRef.current) return;
-    await qrRef.current.download({ name: "tiaqr-vector", extension: "svg" });
+    await qrRef.current.download({ name: "vidqr-vector", extension: "svg" });
     setStatusMessage("Đã tải xuống tệp SVG vector để in ấn.");
   };
 
@@ -1189,7 +1189,7 @@ export function QrCustomizer({
                         maxLength={36}
                         value={config.frameSublabel}
                         onChange={(e) => onChange({ ...config, frameSublabel: e.target.value })}
-                        placeholder="VD: VIDEO HD • TIAQR"
+                        placeholder="VD: VIDEO HD • VIDQR"
                         className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm"
                       />
                     </div>
