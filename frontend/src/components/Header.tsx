@@ -101,7 +101,7 @@ export function Header() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/brand/vidqr-logo.png"
-              alt="VidQR"
+              alt="Logo VidQR Studio — Tạo mã QR Video Động và tải video không logo"
               width={991}
               height={607}
               className="h-9 sm:h-11 w-auto block object-contain"

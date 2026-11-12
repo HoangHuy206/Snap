@@ -63,18 +63,36 @@ export function SeoGeoSection() {
         <div className="text-center max-w-3xl mx-auto space-y-2.5">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800/70 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
             <Sparkles className="size-3.5" aria-hidden="true" />
-            <span>Hướng dẫn &amp; Thông tin chi tiết</span>
+            <span>Hướng dẫn &amp; Giới thiệu VidQR Studio</span>
           </div>
           <h2
             id="vidqr-guide-heading"
             className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white"
           >
-            Tạo QR Video Động &amp; Tải Video MXH Sạch Logo Trong 3 Bước
+            Tạo QR Video Động &amp; Tải Video MXH Với VidQR Studio Trong 3 Bước
           </h2>
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
             Công cụ xử lý trực tiếp trên trình duyệt — không cần cài phần mềm, không cần tạo tài khoản và giữ nguyên chất lượng gốc.
           </p>
         </div>
+      </ScrollReveal>
+
+      {/* Brand Showcase Card for Google Images & Visual Clarity */}
+      <ScrollReveal>
+        <figure className="max-w-2xl mx-auto overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white/90 dark:bg-slate-900/75 shadow-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/vidqr-studio-banner.png"
+            alt="VidQR Studio — Tạo QR Video & File Động, Tải Video TikTok YouTube Reels Facebook Không Logo"
+            width={1200}
+            height={630}
+            loading="lazy"
+            className="w-full h-auto block object-cover"
+          />
+          <figcaption className="px-4 py-2.5 text-center text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 border-t border-slate-200/80 dark:border-slate-800/80">
+            VidQR Studio — Tạo mã QR Động cho Video &amp; File và tải media mạng xã hội không dính logo
+          </figcaption>
+        </figure>
       </ScrollReveal>
 
       {/* 3-Step HowTo Cards */}

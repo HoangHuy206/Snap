@@ -39,7 +39,7 @@ export function Footer({ onSelectTab }: FooterProps) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/brand/vidqr-logo.png"
-                  alt="VidQR"
+                  alt="Logo VidQR Studio — Tạo mã QR Video Động và tải video không logo"
                   width={991}
                   height={607}
                   loading="lazy"

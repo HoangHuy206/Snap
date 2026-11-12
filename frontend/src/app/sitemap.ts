@@ -11,6 +11,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1,
+      images: [
+        `${siteUrl}/brand/vidqr-studio-banner.png`,
+        `${siteUrl}/brand/vidqr-logo.png`,
+        `${siteUrl}/opengraph-image.png`,
+      ],
     },
   ];
 }

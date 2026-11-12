@@ -102,7 +102,7 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
         <section className="text-center max-w-3xl mx-auto space-y-3.5 sm:space-y-4 mb-6 sm:mb-8">
           <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 dark:border-indigo-800/70 bg-indigo-50/80 dark:bg-indigo-950/50 px-3.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
             <Sparkles className="size-3.5 shrink-0" aria-hidden="true" />
-            <span>Tạo QR Video / File Động &amp; Tải Media Không Logo</span>
+            <span>VidQR Studio • Tạo QR Video / File Động &amp; Tải Media Không Logo</span>
           </div>
           <h1 className="text-[clamp(1.625rem,1.15rem+2.2vw,2.375rem)] font-extrabold tracking-tight leading-tight">
             Đưa Video &amp; File thành{" "}
@@ -111,7 +111,7 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
             </span>
           </h1>
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-            Upload video hoặc tệp tin để tạo mã QR thiết kế riêng có logo, đổi file bên trong không cần in lại QR — hoặc tải video/ảnh TikTok, YouTube, IG sạch watermark về máy.
+            VidQR Studio giúp bạn upload video hoặc tệp tin để tạo mã QR thiết kế riêng có logo, đổi file bên trong không cần in lại QR — hoặc tải video/ảnh TikTok, YouTube, IG sạch watermark về máy.
           </p>
 
           {/* Main Tab Switcher */}

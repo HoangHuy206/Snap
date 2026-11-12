@@ -81,8 +81,8 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${SITE_INFO.name} — ${SITE_INFO.tagline}`,
-    template: `%s | ${SITE_INFO.name}`,
+    default: `${SITE_INFO.fullName} — ${SITE_INFO.tagline}`,
+    template: `%s | ${SITE_INFO.fullName}`,
   },
   description: SITE_INFO.description,
   applicationName: SITE_INFO.fullName,
@@ -90,8 +90,10 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   keywords: [
-    "VidQR",
     "VidQR Studio",
+    "vidqr studio",
+    "VidQR",
+    "logo VidQR Studio",
     "tạo mã QR video",
     "tạo QR động",
     "dynamic QR code",
@@ -108,12 +110,12 @@ export const metadata: Metadata = {
     locale: SITE_INFO.locale,
     url: siteUrl,
     siteName: SITE_INFO.fullName,
-    title: `${SITE_INFO.name} — ${SITE_INFO.tagline}`,
+    title: `${SITE_INFO.fullName} — ${SITE_INFO.tagline}`,
     description: SITE_INFO.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_INFO.name} — ${SITE_INFO.tagline}`,
+    title: `${SITE_INFO.fullName} — ${SITE_INFO.tagline}`,
     description: SITE_INFO.description,
   },
   robots: {
@@ -139,24 +141,53 @@ const GLOBAL_STRUCTURED_DATA = {
   "@context": "https://schema.org",
   "@graph": [
     {
+      "@type": "Organization",
+      "@id": `${siteUrl}/#organization`,
+      name: SITE_INFO.fullName,
+      alternateName: [SITE_INFO.name, "vidqr studio", "vidqr"],
+      url: siteUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/brand/vidqr-logo.png`,
+        width: 991,
+        height: 607,
+        caption: "Logo chính thức VidQR Studio",
+      },
+    },
+    {
       "@type": "WebSite",
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
       name: SITE_INFO.fullName,
-      alternateName: SITE_INFO.name,
+      alternateName: [SITE_INFO.name, "vidqr studio"],
       inLanguage: "vi",
       description: SITE_INFO.description,
+      publisher: {
+        "@id": `${siteUrl}/#organization`,
+      },
     },
     {
       "@type": "WebApplication",
       "@id": `${siteUrl}/#webapp`,
       name: SITE_INFO.fullName,
+      alternateName: [SITE_INFO.name, "vidqr studio"],
       url: siteUrl,
       applicationCategory: "MultimediaApplication",
       operatingSystem: "All",
       browserRequirements: "Requires JavaScript. Supports modern desktop and mobile browsers.",
       inLanguage: "vi",
       isAccessibleForFree: true,
+      publisher: {
+        "@id": `${siteUrl}/#organization`,
+      },
+      image: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/brand/vidqr-studio-banner.png`,
+        width: 1200,
+        height: 630,
+        caption: "VidQR Studio — Tạo QR Video & File Động, Tải Video MXH Không Logo",
+      },
+      screenshot: `${siteUrl}/brand/vidqr-studio-banner.png`,
       offers: {
         "@type": "Offer",
         price: "0",
