@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useState, useSyncExternalStore } from "react";
-import { DownloadCloud, QrCode, Sparkles } from "lucide-react";
+import { Download, DownloadCloud, QrCode, Smartphone, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { QrStudio } from "@/components/QrStudio";
@@ -11,6 +11,7 @@ import { RecentHistory } from "@/components/RecentHistory";
 import { FeedbackSection } from "@/components/FeedbackSection";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import type { MediaItem } from "@/lib/api";
+import { MOBILE_APP_DOWNLOADS } from "@/lib/site";
 import {
   getServerHistorySnapshot,
   loadQrHistory,
@@ -37,6 +38,22 @@ function getServerTabSnapshot(): ActiveTab | null {
   return null;
 }
 
+function subscribeNoop(): () => void {
+  return () => {};
+}
+
+function getIsNativeAppSnapshot(): boolean {
+  if (typeof window === "undefined") return false;
+  const w = window as Window & {
+    Capacitor?: { isNativePlatform?: () => boolean };
+  };
+  return Boolean(w.Capacitor?.isNativePlatform?.());
+}
+
+function getIsNativeAppServerSnapshot(): boolean {
+  return false;
+}
+
 interface HomeWorkspaceProps {
   seoSection?: ReactNode;
 }
@@ -52,6 +69,11 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
     getServerTabSnapshot,
   );
   const activeTab: ActiveTab = tabOverride ?? urlTab ?? "qr";
+  const isNativeApp = useSyncExternalStore(
+    subscribeNoop,
+    getIsNativeAppSnapshot,
+    getIsNativeAppServerSnapshot,
+  );
 
   const history = useSyncExternalStore(
     subscribeQrHistory,
@@ -150,6 +172,37 @@ export function HomeWorkspace({ seoSection }: HomeWorkspaceProps) {
               <span>Tải Video &amp; Ảnh MXH</span>
             </button>
           </div>
+
+          {/* Direct Mobile App Download Strip (hidden inside the Capacitor native app) */}
+          {!isNativeApp && (
+            <div className="pt-1 flex flex-wrap items-center justify-center gap-2 text-xs">
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                <Smartphone className="size-3.5 text-indigo-500" aria-hidden="true" />
+                <span>Cài App điện thoại:</span>
+              </span>
+
+              <a
+                href={MOBILE_APP_DOWNLOADS.androidApkUrl}
+                download
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-emerald-300/80 dark:border-emerald-700/80 bg-emerald-50/90 dark:bg-emerald-950/40 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
+              >
+                <Download className="size-3.5 shrink-0" aria-hidden="true" />
+                <span>Android (.apk)</span>
+              </a>
+
+              <a
+                href={MOBILE_APP_DOWNLOADS.iosIpaUrl}
+                download
+                rel="noopener noreferrer"
+                title="iPhone/iPad: tải file .ipa rồi cài qua Sideloadly / AltStore / SideStore"
+                className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <Download className="size-3.5 shrink-0 text-indigo-500" aria-hidden="true" />
+                <span>iPhone / iPad (.ipa)</span>
+              </a>
+            </div>
+          )}
         </section>
 
         {/* Active Workspace */}

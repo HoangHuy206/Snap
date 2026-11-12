@@ -21,3 +21,9 @@ export const SITE_INFO = {
     "Nền tảng miễn phí tạo mã QR động cho Video (MP4, MOV, WebM), PDF, Ảnh, Tài liệu kèm khung viền thiết kế tùy chỉnh và công cụ tải video/ảnh TikTok, YouTube Shorts, Instagram Reels, Facebook không dính logo.",
   locale: "vi_VN",
 } as const;
+
+export const MOBILE_APP_DOWNLOADS = {
+  androidApkUrl: "https://github.com/HoangHuy206/Snap/releases/latest/download/VidQR-Studio.apk",
+  iosIpaUrl: "https://github.com/HoangHuy206/Snap/releases/latest/download/VidQR-Studio-unsigned.ipa",
+  releasesUrl: "https://github.com/HoangHuy206/Snap/releases/latest",
+} as const;
