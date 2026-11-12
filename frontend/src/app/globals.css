@@ -267,48 +267,22 @@ progress.snap-progress:indeterminate {
   }
 }
 
-/* Scroll-triggered reveal animations ("kéo đến đâu hiện nội dung tới đó")
-   Progressive enhancement with Scroll-Driven Animations + IntersectionObserver fallback. */
-@keyframes vidqr-scroll-reveal {
-  from {
-    opacity: 0;
-    translate: 0 28px;
-    scale: 0.985;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-  }
-}
-
+/* Scroll-triggered reveal animations ("kéo đến đâu hiện nội dung tới đó") */
 @media (prefers-reduced-motion: no-preference) {
-  @supports ((animation-timeline: view()) and (animation-range: entry)) {
-    .vidqr-reveal {
-      animation: vidqr-scroll-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 45%;
-    }
-
-    .vidqr-reveal--footer {
-      animation-range: entry 0% entry 75%;
-    }
-  }
-
-  /* Legacy browsers without Scroll-Driven Animations fallback (driven by ScrollReveal observer) */
   .vidqr-reveal-pending {
     opacity: 0;
-    translate: 0 28px;
-    scale: 0.985;
+    translate: 0 44px;
+    scale: 0.96;
+    will-change: opacity, translate, scale;
   }
 
-  .vidqr-reveal-visible {
+  .vidqr-reveal-entering {
     opacity: 1;
     translate: 0 0;
     scale: 1;
     transition-property: opacity, translate, scale;
-    transition-duration: 0.65s;
-    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transition-duration: 0.72s;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     transition-delay: var(--vidqr-reveal-delay, 0ms);
   }
 }

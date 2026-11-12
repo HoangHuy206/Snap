@@ -25,6 +25,7 @@ import {
 import { saveQrHistoryEntry, updateHistoryItemInfo } from "@/lib/history";
 import { DEFAULT_QR_CONFIG, resolveQrConfig } from "@/lib/qr-presets";
 import { QrCustomizer } from "./QrCustomizer";
+import { ScrollReveal } from "./ScrollReveal";
 
 interface QrStudioProps {
   initialItem?: MediaItem | null;
@@ -429,23 +430,25 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
       )}
 
       {/* Step 2: QR Studio Customizer */}
-      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-4 sm:p-7 shadow-sm space-y-5">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight">2. Tùy biến QR đẹp &amp; nổi bật</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Chỉnh kiểu chấm, màu Gradient, gắn logo ở giữa và thêm khung chữ kêu gọi quét trước khi tải PNG/SVG.
-          </p>
-        </div>
+      <ScrollReveal>
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111520] p-4 sm:p-7 shadow-sm space-y-5">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">2. Tùy biến QR đẹp &amp; nổi bật</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Chỉnh kiểu chấm, màu Gradient, gắn logo ở giữa và thêm khung chữ kêu gọi quét trước khi tải PNG/SVG.
+            </p>
+          </div>
 
-        <QrCustomizer
-          qrValue={shareUrl}
-          config={qrConfig}
-          onChange={setQrConfig}
-          isLiveLinked={Boolean(activeItem)}
-          onSaveConfigToServer={activeItem?.edit_token ? handleSaveConfigToServer : undefined}
-          savingConfig={savingConfig}
-        />
-      </section>
+          <QrCustomizer
+            qrValue={shareUrl}
+            config={qrConfig}
+            onChange={setQrConfig}
+            isLiveLinked={Boolean(activeItem)}
+            onSaveConfigToServer={activeItem?.edit_token ? handleSaveConfigToServer : undefined}
+            savingConfig={savingConfig}
+          />
+        </section>
+      </ScrollReveal>
     </div>
   );
 }

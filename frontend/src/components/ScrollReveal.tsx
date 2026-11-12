@@ -12,8 +12,9 @@ interface ScrollRevealProps {
 
 /**
  * Scroll-triggered reveal wrapper ("kéo đến đâu hiện nội dung tới đó").
- * Uses native CSS Scroll-Driven Animations when supported, and cleanly falls
- * back to IntersectionObserver on older browsers without hiding SSR/hero content.
+ * Keeps SSR HTML & above-the-fold content visible immediately for LCP/SEO,
+ * stages off-screen sections below the fold, and smoothly reveals each block
+ * once when scrolled into view while respecting prefers-reduced-motion.
  */
 export function ScrollReveal({
   children,
@@ -32,57 +33,93 @@ export function ScrollReveal({
     ).matches;
     if (prefersReducedMotion) return;
 
-    const supportsScrollDriven =
-      typeof CSS !== "undefined" &&
-      typeof CSS.supports === "function" &&
-      CSS.supports(
-        "(animation-timeline: view()) and (animation-range: entry)"
-      );
-    if (supportsScrollDriven) return;
-
-    // Only stage elements that currently start below the fold so LCP & above-the-fold stay instant.
-    const rect = el.getBoundingClientRect();
-    if (rect.top <= window.innerHeight * 0.96) return;
+    const initialRect = el.getBoundingClientRect();
+    if (initialRect.top <= window.innerHeight - 28) return;
 
     el.classList.add("vidqr-reveal-pending");
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting || entry.boundingClientRect.top <= window.innerHeight * 0.96) {
-            el.classList.remove("vidqr-reveal-pending");
-            el.classList.add("vidqr-reveal-visible");
-            observer.unobserve(el);
-            break;
-          }
-        }
-      },
-      {
-        threshold: 0.04,
-        rootMargin: "0px 0px -4% 0px",
-      }
-    );
+    let revealed = false;
+    let observer: IntersectionObserver | null = null;
+    let rafId = 0;
+    let cleanupTimer: number | null = null;
 
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
+    const triggerReveal = () => {
+      if (revealed) return;
+      revealed = true;
+      observer?.disconnect();
+      window.removeEventListener("scroll", checkBottomOrViewport);
+
       el.classList.remove("vidqr-reveal-pending");
+      el.classList.add("vidqr-reveal-entering");
+
+      // Remove transition class after completion so sticky children remain unaffected.
+      cleanupTimer = window.setTimeout(() => {
+        el.classList.remove("vidqr-reveal-entering");
+      }, delayMs + 800);
     };
-  }, []);
+
+    const checkBottomOrViewport = () => {
+      const rect = el.getBoundingClientRect();
+      const nearViewportTrigger =
+        rect.top <= window.innerHeight - (variant === "footer" ? 12 : 48);
+      const reachedPageBottom =
+        variant === "footer" &&
+        window.scrollY + window.innerHeight >=
+          document.documentElement.scrollHeight - 24;
+
+      if (nearViewportTrigger || reachedPageBottom) {
+        triggerReveal();
+      }
+    };
+
+    rafId = window.requestAnimationFrame(() => {
+      const rectAfterPaint = el.getBoundingClientRect();
+      if (rectAfterPaint.top <= window.innerHeight - 28) {
+        triggerReveal();
+        return;
+      }
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (
+              entry.isIntersecting ||
+              entry.boundingClientRect.top <= window.innerHeight - 28
+            ) {
+              triggerReveal();
+              break;
+            }
+          }
+        },
+        {
+          threshold: 0.04,
+          rootMargin:
+            variant === "footer" ? "0px 0px -12px 0px" : "0px 0px -56px 0px",
+        }
+      );
+
+      observer.observe(el);
+      window.addEventListener("scroll", checkBottomOrViewport, {
+        passive: true,
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      if (cleanupTimer !== null) window.clearTimeout(cleanupTimer);
+      observer?.disconnect();
+      window.removeEventListener("scroll", checkBottomOrViewport);
+      el.classList.remove("vidqr-reveal-pending", "vidqr-reveal-entering");
+    };
+  }, [delayMs, variant]);
 
   const revealStyle =
     delayMs > 0
       ? ({ "--vidqr-reveal-delay": `${delayMs}ms` } as CSSProperties)
       : undefined;
 
-  const variantClass = variant === "footer" ? "vidqr-reveal--footer" : "";
-
   return (
-    <div
-      ref={ref}
-      style={revealStyle}
-      className={`vidqr-reveal ${variantClass} ${className}`.trim()}
-    >
+    <div ref={ref} style={revealStyle} className={className || undefined}>
       {children}
     </div>
   );
