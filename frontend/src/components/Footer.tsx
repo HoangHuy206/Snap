@@ -1,16 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUp, DownloadCloud, MessageSquareHeart, QrCode, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowUp, DownloadCloud, MessageSquareHeart, QrCode, ShieldCheck, Sparkles, Trees } from "lucide-react";
 
 interface FooterProps {
-  onSelectTab?: (tab: "qr" | "social") => void;
+  onSelectTab?: (tab: "qr" | "social" | "magic") => void;
 }
 
 export function Footer({ onSelectTab }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
-  const handleTabJump = (tab: "qr" | "social") => {
+  const handleTabJump = (tab: "qr" | "social" | "magic") => {
     if (onSelectTab) {
       onSelectTab(tab);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -110,6 +110,26 @@ export function Footer({ onSelectTab }: FooterProps) {
                   >
                     <DownloadCloud className="size-4 shrink-0 text-cyan-500" aria-hidden="true" />
                     <span>Tải Video &amp; Ảnh MXH</span>
+                  </Link>
+                )}
+              </li>
+              <li>
+                {onSelectTab ? (
+                  <button
+                    type="button"
+                    onClick={() => handleTabJump("magic")}
+                    className="inline-flex min-h-[36px] items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
+                  >
+                    <Trees className="size-4 shrink-0 text-emerald-500" aria-hidden="true" />
+                    <span>QR Hoạt Ảnh 3D (Link)</span>
+                  </button>
+                ) : (
+                  <Link
+                    href="/magic"
+                    className="inline-flex min-h-[36px] items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  >
+                    <Trees className="size-4 shrink-0 text-emerald-500" aria-hidden="true" />
+                    <span>QR Hoạt Ảnh 3D (Link)</span>
                   </Link>
                 )}
               </li>
