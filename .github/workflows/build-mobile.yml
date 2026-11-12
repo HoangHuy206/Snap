@@ -74,6 +74,7 @@ jobs:
         run: |
           npx cap add android
           npx capacitor-assets generate --android
+          cp native/android/MainActivity.java android/app/src/main/java/app/vidqr/studio/MainActivity.java
 
       - name: Set Android versionCode and versionName
         env:
@@ -146,6 +147,7 @@ jobs:
         run: |
           npx cap add ios
           npx capacitor-assets generate --ios
+          cp native/ios/SceneDelegate.swift ios/App/App/SceneDelegate.swift
 
       - name: Configure iOS Info.plist permissions and version
         env:

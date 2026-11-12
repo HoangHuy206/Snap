@@ -2,6 +2,8 @@
 
 Thư mục này đóng gói web **https://vidqr-studio.vercel.app** thành ứng dụng Android (`.apk`) và iOS (`.ipa`) bằng **Capacitor 8** và build tự động trên **GitHub Actions** (không cần cài Xcode hay Android Studio trên máy Windows).
 
+- **Intro animation riêng cho App:** Cả bản Android ([MainActivity.java](native/android/MainActivity.java)) và iOS ([SceneDelegate.swift](native/ios/SceneDelegate.swift)) đều chạy hiệu ứng Intro quét tia QR + logo **VidQR Studio** (~2 giây) khi mới mở app trong lúc nền web đang tải sẵn phía sau — hoàn toàn **không hiển thị trên trình duyệt web thường**.
+
 ## Cách build file `.ipa` và `.apk` trên GitHub
 
 1. Push code lên GitHub (`Sync Changes / Push` trong VS Code).
