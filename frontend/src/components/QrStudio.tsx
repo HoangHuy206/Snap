@@ -11,7 +11,6 @@ import {
   KeyRound,
   Plus,
   QrCode,
-  RefreshCw,
   Settings2,
   Trees,
   AlertCircle,
@@ -104,10 +103,12 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
     }
   };
 
-  const handleUploadSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreateQr = async () => {
     if (!selectedFile) {
-      setErrorMsg("Vui lòng chọn video hoặc tệp tin để tạo mã QR.");
+      setErrorMsg("Vui lòng chọn Video, Ảnh hoặc Tệp tin ở Bước 1 trước khi tạo QR.");
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
       return;
     }
 
@@ -135,6 +136,11 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleUploadSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void handleCreateQr();
   };
 
   const handleSaveConfigToServer = async () => {
@@ -290,7 +296,7 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
                 </select>
               </div>
 
-              <div className="sm:col-span-8 space-y-1">
+              <div className="sm:col-span-12 space-y-1">
                 <label htmlFor={descInputId} className="block text-xs font-semibold">
                   Ghi chú ngắn (tùy chọn)
                 </label>
@@ -303,26 +309,6 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
                   placeholder="Mô tả ngắn cho người quét QR..."
                   className="w-full min-h-[40px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
                 />
-              </div>
-
-              <div className="sm:col-span-4 flex items-end">
-                <button
-                  type="submit"
-                  disabled={uploading}
-                  className="w-full inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 px-3.5 py-2 text-sm font-bold text-white shadow-sm transition-colors cursor-pointer"
-                >
-                  {uploading ? (
-                    <>
-                      <RefreshCw className="size-4 animate-spin" aria-hidden="true" />
-                      {uploadProgress}%
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="size-4" aria-hidden="true" />
-                      Tạo QR Ngay
-                    </>
-                  )}
-                </button>
               </div>
             </div>
           </div>
@@ -450,7 +436,7 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
               <h2 className="text-xl font-bold tracking-tight">2. Tùy biến QR đẹp &amp; nổi bật</h2>
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 {qrPresentation === "static"
-                  ? "Chỉnh kiểu chấm, màu Gradient, gắn logo ở giữa và thêm khung chữ kêu gọi quét trước khi tải PNG/SVG."
+                  ? "Chỉnh kiểu chấm, màu Gradient, logo & khung — sau đó bấm Tạo QR Ngay và Lưu PNG."
                   : "Biến Video, Ảnh, Tệp tin (hoặc Link URL) thành Cây Hoa 3D tương tác chạm mở mã QR."}
               </p>
             </div>
@@ -496,6 +482,10 @@ export function QrStudio({ initialItem = null, onItemSaved }: QrStudioProps) {
               config={qrConfig}
               onChange={setQrConfig}
               isLiveLinked={Boolean(activeItem)}
+              hasSelectedFile={Boolean(selectedFile)}
+              creating={uploading}
+              createProgress={uploadProgress}
+              onCreateQr={() => void handleCreateQr()}
               onSaveConfigToServer={activeItem?.edit_token ? handleSaveConfigToServer : undefined}
               savingConfig={savingConfig}
             />

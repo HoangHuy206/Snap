@@ -15,7 +15,6 @@ import {
   Image as ImageIcon,
   Music,
   QrCode,
-  Settings2,
   Volume2,
 } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -26,7 +25,6 @@ import {
   getMediaStreamUrl,
   type MediaItem,
 } from "@/lib/api";
-import { findStoredEditToken } from "@/lib/history";
 
 function AutoPlayVideo({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -103,13 +101,11 @@ export default function ViewMediaPage() {
   const [item, setItem] = useState<MediaItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
-  const [storedToken, setStoredToken] = useState<string | null>(null);
   const fetchedRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!code || fetchedRef.current === code) return;
     fetchedRef.current = code;
-    setStoredToken(findStoredEditToken(code));
 
     (async () => {
       try {
@@ -264,16 +260,6 @@ export default function ViewMediaPage() {
                   </a>
                 )}
               </div>
-
-              {storedToken && (
-                <Link
-                  href={`/manage/${code}?token=${encodeURIComponent(storedToken)}`}
-                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-950/50 px-4 py-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300"
-                >
-                  <Settings2 className="size-4 shrink-0" aria-hidden="true" />
-                  Đổi file / Quản lý QR
-                </Link>
-              )}
             </div>
           </article>
         )}

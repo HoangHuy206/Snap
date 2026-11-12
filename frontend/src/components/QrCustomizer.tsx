@@ -10,6 +10,8 @@ import {
   ImagePlus,
   Italic,
   Palette,
+  QrCode,
+  RefreshCw,
   Save,
   Shapes,
   Sparkles,
@@ -44,6 +46,10 @@ interface QrCustomizerProps {
   config: QrDesignConfig;
   onChange: (next: QrDesignConfig) => void;
   isLiveLinked: boolean;
+  hasSelectedFile?: boolean;
+  creating?: boolean;
+  createProgress?: number;
+  onCreateQr?: () => void;
   onSaveConfigToServer?: () => Promise<void>;
   savingConfig?: boolean;
 }
@@ -359,6 +365,10 @@ export function QrCustomizer({
   config: rawConfig,
   onChange,
   isLiveLinked,
+  hasSelectedFile = false,
+  creating = false,
+  createProgress = 0,
+  onCreateQr,
   onSaveConfigToServer,
   savingConfig,
 }: QrCustomizerProps) {
@@ -540,7 +550,7 @@ export function QrCustomizer({
   };
 
   const handleDownloadPng = async () => {
-    if (!qrRef.current) return;
+    if (!isLiveLinked || !qrRef.current) return;
     setExporting(true);
     setStatusMessage("");
     try {
@@ -575,12 +585,6 @@ export function QrCustomizer({
     } finally {
       setExporting(false);
     }
-  };
-
-  const handleDownloadSvg = async () => {
-    if (!qrRef.current) return;
-    await qrRef.current.download({ name: "vidqr-vector", extension: "svg" });
-    setStatusMessage("Đã tải xuống tệp SVG vector để in ấn.");
   };
 
   const isDecorativeFrame = DECORATIVE_FRAME_STYLES.has(config.frameStyle);
@@ -637,26 +641,56 @@ export function QrCustomizer({
           </div>
         )}
 
-        {/* Export buttons */}
+        {/* Action buttons: Create QR (left) & Save PNG (right, locked until QR is created) */}
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {isLiveLinked ? (
+            <button
+              type="button"
+              disabled
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-emerald-600/90 text-white px-4 py-2.5 text-sm font-semibold shadow-sm cursor-default"
+            >
+              <CheckCircle2 className="size-4" aria-hidden="true" />
+              Đã tạo QR
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={creating}
+              onClick={onCreateQr}
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors cursor-pointer"
+            >
+              {creating ? (
+                <>
+                  <RefreshCw className="size-4 animate-spin" aria-hidden="true" />
+                  Đang tạo QR ({createProgress}%)...
+                </>
+              ) : (
+                <>
+                  <QrCode className="size-4" aria-hidden="true" />
+                  Tạo QR Ngay
+                </>
+              )}
+            </button>
+          )}
           <button
             type="button"
-            disabled={exporting}
+            disabled={!isLiveLinked || exporting}
             onClick={handleDownloadPng}
-            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors cursor-pointer"
+            title={!isLiveLinked ? "Hãy bấm Tạo QR Ngay trước khi lưu PNG" : undefined}
+            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-slate-800 px-4 py-2.5 text-sm font-semibold transition-colors cursor-pointer"
           >
             <Download className="size-4" aria-hidden="true" />
-            {exporting ? "Đang xuất..." : "Tải PNG kèm khung"}
-          </button>
-          <button
-            type="button"
-            onClick={handleDownloadSvg}
-            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2.5 text-sm font-semibold transition-colors cursor-pointer"
-          >
-            <Download className="size-4" aria-hidden="true" />
-            Tải SVG vector
+            {exporting ? "Đang lưu..." : "Lưu PNG"}
           </button>
         </div>
+
+        {!isLiveLinked && (
+          <p className="w-full text-center text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
+            {hasSelectedFile
+              ? "Đã sẵn sàng tệp! Bấm Tạo QR Ngay để tạo mã và mở khóa Lưu PNG."
+              : "Chọn Video / Ảnh / Tệp ở Bước 1 trước, rồi bấm Tạo QR Ngay để mở khóa Lưu PNG."}
+          </p>
+        )}
 
         {isLiveLinked && onSaveConfigToServer && (
           <button
